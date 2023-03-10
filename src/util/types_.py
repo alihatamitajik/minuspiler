@@ -20,3 +20,29 @@ compiler. `str` part will change in the future but for now scanner will pass
 type of the token, which is an integer, and the lexim of the token.
 """
 Token = Tuple[TokenType, str]
+
+
+@dataclass
+class Transition:
+    """Transition
+
+    next_state: index of the next state in the list of states kept by the object
+    be careful with the indexes.
+
+    literal: if the input is in literal it is accepting
+
+    is_other: if this option is true, then input should not be in the literal to
+    be accepted.
+    """
+    is_other: bool = False
+    next_state: int = None
+    literal: str = ""
+
+
+@dataclass
+class AutoTailState:
+    """Each state can have multiple transition and will be checked in order of
+    the list. If the state is accepting dfa will return its type"""
+    transitions: List[Transition] = []
+    is_accepting: bool = False
+    is_retreat: bool = False
