@@ -72,3 +72,46 @@ class Buffer:
             int: lineno of `beginning` pointer.
         """
         raise NotImplementedError()
+
+
+class AllBuffer(Buffer):
+    """Dummy Buffer
+
+    This Buffer class opens the file and read the whole file. It keep pointers
+    with their real index in the original file and no literal buffering is done.
+    This class should be implemented so we ensure the main part of the scanner
+    works. An appropriate buffer will be implemented later.
+
+    TODO: this implementation is not tested and can be buggy AF.
+    """
+
+    def __call__(self, *args, **kwds) -> str:
+        if self.forward == len(self.file):
+            return None
+        else:
+            return self.file[self.forward]
+
+    def __init__(self, file="input.txt") -> None:
+        super().__init__(file)
+        self.beginning = 0
+        self.forward = 0
+        self.lineno = 1
+        self.file = self.f.read()
+
+    def step(self) -> None:
+        self.forward = min(len(self.file), self.forward + 1)
+        if self.__call__() == '\n':
+            self.lineno += 1
+
+    def extract(self) -> str:
+        retval = self.file[self.beginning:self.forward+1]
+        self.beginning = self.forward = self.forward + 1
+        return retval
+
+    def extract_retreat(self) -> str:
+        retval = self.file[self.beginning:self.forward]
+        self.beginning = self.forward
+        return retval
+
+    def get_lineno(self) -> int:
+        return self.lineno
