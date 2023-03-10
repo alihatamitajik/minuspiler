@@ -146,3 +146,40 @@ def get_language() -> Dfa:
     """Returns DFA of the language"""
     # TODO
     pass
+
+
+class Scanner:
+    """Scanner (Lexer)
+
+    This module will use Buffer and Dfa of the language to get tokens.
+    """
+
+    def __init__(self) -> None:
+        self.dfa = get_language()
+        self.buf = AllBuffer()
+
+    def get_next_token(self):
+        """returns next token
+
+        This function will try to get the next token type with usage of the Dfa
+        and 
+        """
+        cur_lineno = self.buf.get_lineno()
+        try:
+            token_type = self.dfa.match(self.buf)
+            # TODO: log token
+            lexim = self.buf.extract()  # TODO: handle retreat
+            # TODO: return Token
+        except ValueError as e:
+            self.panic(e)
+        except e:
+            # handle general errors
+            pass
+
+    def panic(self, e: ValueError):
+        """Panic Mode
+
+        This function will handle discarding of the input buffer and logging the
+        exception. TODO
+        """
+        pass
