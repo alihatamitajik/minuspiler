@@ -91,3 +91,58 @@ class DfaTail:
             TokenType: type of the token accepted
         """
         raise NotImplementedError()
+
+
+class AutoTail(DfaTail):
+    """Automatic Dfa Tail
+
+    This class will accepts the inputs according to state list provided to its
+    initializer and not hard coded (Manual). States passed to AutoTail as a list
+    of `AutoTailState`s (see types_).
+    """
+
+    def __init__(self, states, type, error) -> None:
+        self.states = states
+        self.type = type
+        self.error = error
+
+    def match(self, buffer) -> TokenType:
+        """Accepts the dfa
+
+        Args:
+            buffer (Buffer): input buffer
+
+        Raises:
+            ValueError: if cannot accept
+
+        Returns:
+            TokenType: token type of accepted input
+        """
+        state_idx = 0
+        state = self.states[state_idx]
+        while not state.is_accepting:
+            c = buffer()
+            matched = False
+            for t in state.transitions:
+                if t.is_other:
+                    if c not in t.literal:
+                        state_idx = t.next_state
+                        matched = True
+                        break
+                else:
+                    if c in t.literal:
+                        state_idx = t.next_state
+                        matched = True
+                        break
+            if matched:
+                buffer.step()
+                state = self.states[state_idx]
+            else:
+                raise ValueError(self.error)
+        return self.type
+
+
+def get_language() -> Dfa:
+    """Returns DFA of the language"""
+    # TODO
+    pass
