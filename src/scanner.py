@@ -56,3 +56,38 @@ class Dfa:
                 buffer.step()
                 tail.match(buffer)
         raise ValueError('Invalid Input')
+
+
+class DfaTail:
+    """Tail object
+
+    Tail object is a DFA machine that will match the input from the second
+    character (if needed) and returns token type of the input detected, or, it
+    will raise an error if it cannot match the input (it is deterministically
+    tell that the input cannot match any other types because input matched this
+    entrypoint).
+
+    `match` function will step the buffer until it raises an error or detects a
+    type. NOTE that tails does not extract the input from buffer.
+    """
+
+    def match(self, buffer) -> TokenType:
+        """matches buffer inputs with specified dfa types.
+
+        Args:
+            buffer (Buffer): one of Buffer class implementations.
+
+        Raises:
+            NotImplementedError: This class should be implemented first and then
+            be used. There will be two implementation: Automatic and Manual.
+            Manual Implementation is for specific branches that cannot be
+            automated easily.
+
+            ValueError: If it cannot accept the input it would raise a value
+            error. The error message will be important as it will be used in
+            panic mode.
+
+        Returns:
+            TokenType: type of the token accepted
+        """
+        raise NotImplementedError()
