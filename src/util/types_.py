@@ -46,3 +46,29 @@ class AutoTailState:
     transitions: List[Transition] = []
     is_accepting: bool = False
     is_retreat: bool = False
+
+
+class SymbolTable:
+    """Symbol Table"""
+
+    def __init__(self) -> None:
+        """TODO: dumb implementation of symbol table. it could be better it
+        think"""
+        self.table = {}
+
+    def dump(filename):
+        """dumps symbol table entries into a file
+
+        Args:
+            filename (str): name of the file that table will be dumped into.
+        """
+        raise NotImplementedError()
+
+    def install(self, id_key):
+        """insert id/keyword if it is not already in table
+
+        Args:
+            id_key (str): lexim of the symbol
+        """
+        if id_key not in self.table:
+            self.table[id_key] = None
