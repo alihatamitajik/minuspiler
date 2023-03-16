@@ -33,6 +33,20 @@ type of the token, which is an integer, and the lexim of the token.
 Token = Tuple[TokenType, str]
 
 
+class ErrorType(Enum):
+    """Types of error to be passed to the panic method"""
+    INVALID_INPUT = 0,
+    INVALID_NUMBER = 1,
+    UNMATCHED_COMMENT = 2,
+    UNCLOSED_COMMENT = 3
+
+
+"""Err
+<lexim, error type, #line>
+"""
+Err = Tuple[str, ErrorType, int]
+
+
 @dataclass
 class Transition:
     """Transition
@@ -45,9 +59,9 @@ class Transition:
     is_other: if this option is true, then input should not be in the literal to
     be accepted.
     """
+    literal: str = ""
     is_other: bool = False
     next_state: int = None
-    literal: str = ""
 
 
 @dataclass
