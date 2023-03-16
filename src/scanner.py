@@ -1,4 +1,4 @@
-from util.types_ import TokenType
+from util.types_ import *
 from util.buffer import AllBuffer
 
 
