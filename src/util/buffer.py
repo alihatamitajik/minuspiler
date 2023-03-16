@@ -11,7 +11,7 @@ class Buffer:
         """returns char at the current forward position
 
         this function will allow buffer to be a callable and when it is called
-        it should return the character at the current position or None if we
+        it should return the character at the current position or \x05 if we
         reach EOF.
         """
         raise NotImplementedError()
@@ -91,7 +91,7 @@ class AllBuffer(Buffer):
 
     def __call__(self, *args, **kwds) -> str:
         if self.forward == len(self.file):
-            return None
+            return '\x05'
         else:
             return self.file[self.forward]
 
