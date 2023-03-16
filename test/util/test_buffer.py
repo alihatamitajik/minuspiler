@@ -3,7 +3,7 @@ import os
 
 from util.buffer import AllBuffer
 
-TESTDATA_FILENAME = os.path.join(os.path.dirname(__file__), 'input.txt')
+TESTDATA_FILENAME = os.path.join(os.path.dirname(__file__), '../input.txt')
 
 
 class AllBufferTest(unittest.TestCase):
