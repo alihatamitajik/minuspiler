@@ -95,12 +95,15 @@ class AllBuffer(Buffer):
         else:
             return self.file[self.forward]
 
-    def __init__(self, file="input.txt") -> None:
-        super().__init__(file)
+    def __init__(self, file="input.txt", fake=None) -> None:
+        if not fake:
+            super().__init__(file)
+            self.file = self.f.read()
+        else:
+            self.file = fake
         self.beginning = 0
         self.forward = 0
         self.lineno = 1
-        self.file = self.f.read()
 
     def close(self):
         super().close()
