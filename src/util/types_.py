@@ -67,10 +67,14 @@ class Transition:
 @dataclass
 class AutoTailState:
     """Each state can have multiple transition and will be checked in order of
-    the list. If the state is accepting dfa will return its type"""
+    the list. If the state is accepting dfa will return its type.
+
+    Accepting states that has callback function in them, callback function
+    should be returned as type instead of automatic type return"""
     transitions: List[Transition] = []
     is_accepting: bool = False
     is_retreat: bool = False
+    callback = None
 
 
 class SymbolTable:
@@ -97,3 +101,8 @@ class SymbolTable:
         """
         if id_key not in self.table:
             self.table[id_key] = None
+
+
+class classproperty(property):
+    def __get__(self, cls, owner):
+        return classmethod(self.fget).__get__(None, owner)()
