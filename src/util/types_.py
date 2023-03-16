@@ -11,11 +11,15 @@ L = string.ascii_letters
 # Digits
 D = string.digits
 # symbols without star (*) and (=) (these will have separate tails)
-S = ";:,[](){}+-*<"
+S = ";:,[](){}+-<"
 # Whitespaces
 W = string.whitespace
 # All accepted characters
 SIGMA = L + D + S + W
+# Extended Symbols (All special characters that can be used in code)
+SPEC = ";:,[](){}+-</*="
+# End of Text
+EOT = "\x03"
 
 
 class TokenType(Enum):
@@ -57,12 +61,10 @@ class Transition:
     be careful with the indexes.
 
     literal: if the input is in literal it is accepting
-
-    is_other: if this option is true, then input should not be in the literal to
-    be accepted.
     """
     literal: str = ""
     next_state: int = None
+    can_none: bool = True
 
 
 @dataclass
