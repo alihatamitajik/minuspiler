@@ -126,16 +126,10 @@ class AutoTail(DfaTail):
             c = buffer()
             matched = False
             for t in state.transitions:
-                if t.is_other:
-                    if c not in t.literal:
-                        state_idx = t.next_state
-                        matched = True
-                        break
-                else:
-                    if c in t.literal:
-                        state_idx = t.next_state
-                        matched = True
-                        break
+                if c in t.literal:
+                    state_idx = t.next_state
+                    matched = True
+                    break
             if matched:
                 buffer.step()
                 state = self.states[state_idx]
