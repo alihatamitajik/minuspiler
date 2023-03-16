@@ -32,7 +32,7 @@ class Dfa:
         """dfa(buffer) is equivalent of dfa.match(buffer)"""
         self.match(args[0])
 
-    def match(self, buffer) -> TokenType:
+    def match(self, buffer) -> Tuple[TokenType, bool]:
         """accepts input
 
         This function will check the first input in the buffer and test it with
@@ -49,12 +49,13 @@ class Dfa:
 
         Returns:
             TokenType: type of the token found
+            bool: if it should retreat or not
         """
         c = buffer()
         for entry, tail in self.tails:
             if c in entry:
                 buffer.step()
-                tail.match(buffer)
+                return tail.match(buffer)
         raise ValueError('Invalid Input')
 
 
@@ -101,12 +102,13 @@ class AutoTail(DfaTail):
     of `AutoTailState`s (see types_).
     """
 
-    def __init__(self, states, type, error) -> None:
+    def __init__(self, states: List[AutoTailState], type: TokenType,
+                 error: ErrorType) -> None:
         self.states = states
         self.type = type
         self.error = error
 
-    def match(self, buffer) -> TokenType:
+    def match(self, buffer) -> Tuple[TokenType, bool]:
         """Accepts the dfa
 
         Args:
@@ -117,6 +119,7 @@ class AutoTail(DfaTail):
 
         Returns:
             TokenType: token type of accepted input
+            bool: if it should retreat or not
         """
         state_idx = 0
         state = self.states[state_idx]
@@ -139,7 +142,7 @@ class AutoTail(DfaTail):
                 state = self.states[state_idx]
             else:
                 raise ValueError(self.error)
-        return self.type
+        return self.type, state.is_retreat
 
 
 def get_language() -> Dfa:
@@ -166,7 +169,7 @@ class Scanner:
         """
         cur_lineno = self.buf.get_lineno()
         try:
-            token_type = self.dfa.match(self.buf)
+            token_type, is_retreat = self.dfa.match(self.buf)
             # TODO: log token
             lexim = self.buf.extract()  # TODO: handle retreat
             # TODO: return Token
