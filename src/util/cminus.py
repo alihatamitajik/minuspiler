@@ -3,6 +3,39 @@ from util.types_ import classproperty
 from util.types_ import *
 
 
+class AsteriskTail(DfaTail):
+    def match(self, buffer) -> Tuple[TokenType, bool]:
+        c = buffer()
+        if c == "/":
+            raise ValueError(ErrorType.UNMATCHED_COMMENT)
+        else:
+            return TokenType.SYMBOL, True
+
+
+class CommentTail(DfaTail):
+    def match_end(self, buffer):
+        state = 0
+        while True:
+            c = buffer()
+            if c == EOT:
+                raise ValueError(ErrorType.UNCLOSED_COMMENT)
+            if state == 0 and c == "*":
+                state = 1
+            elif state == 1:
+                if c == "/":
+                    return TokenType.COMMENT, False
+                elif c != "*":
+                    state = 0
+
+    def match(self, buffer) -> Tuple[TokenType, bool]:
+        c = buffer()
+        if c != "*":
+            raise ValueError(ErrorType.INVALID_INPUT)
+        else:
+            buffer.step()  # "/*" is matched
+            return self.match_end(buffer)
+
+
 class CMinus:
     """Language
 
@@ -62,21 +95,36 @@ class CMinus:
                 ),
                 AutoTailState([], True, True)
             ],
-            TokenType.ID
+            TokenType.NUM,
+            ErrorType.INVALID_NUMBER
         )
 
     @classproperty
     def symbol_tail() -> DfaTail:
-        pass
+        return AutoTail(
+            [AutoTailState([], True, False)],
+            TokenType.SYMBOL
+        )
 
     @classproperty
-    def equals_tail():
-        pass
+    def equals_tail() -> DfaTail:
+        other = L + D + W + S + "*/" + EOT
+        return AutoTail(
+            [
+                AutoTailState([
+                    Transition("=", 1),
+                    Transition(other, 2)
+                ]),
+                AutoTailState([], True, False),
+                AutoTailState([], True, True)
+            ],
+            TokenType.SYMBOL
+        )
 
     @classproperty
-    def asterisk_tail():
-        pass
+    def asterisk_tail() -> DfaTail:
+        return AsteriskTail()
 
     @classproperty
-    def comment_tail():
-        pass
+    def comment_tail() -> DfaTail:
+        return CommentTail()

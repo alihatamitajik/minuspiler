@@ -71,7 +71,7 @@ class DfaTail:
     type. NOTE that tails does not extract the input from buffer.
     """
 
-    def match(self, buffer) -> TokenType:
+    def match(self, buffer) -> Tuple[TokenType, bool]:
         """matches buffer inputs with specified dfa types.
 
         Args:
@@ -102,7 +102,7 @@ class AutoTail(DfaTail):
     """
 
     def __init__(self, states: List[AutoTailState], type: TokenType,
-                 error: ErrorType) -> None:
+                 error: ErrorType = ErrorType.INVALID_INPUT) -> None:
         self.states = states
         self.type = type
         self.error = error
