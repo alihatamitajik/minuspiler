@@ -14,6 +14,8 @@ D = string.digits
 S = ";:,[](){}+-*<"
 # Whitespaces
 W = string.whitespace
+# All accepted characters
+SIGMA = L + D + S + W
 
 
 class TokenType(Enum):
@@ -60,7 +62,6 @@ class Transition:
     be accepted.
     """
     literal: str = ""
-    is_other: bool = False
     next_state: int = None
 
 
