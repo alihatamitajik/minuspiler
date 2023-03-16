@@ -30,6 +30,10 @@ class Buffer:
         if file:
             self.f = open(file)
 
+    def close(self):
+        """Closes the buffer and removes allocated data"""
+        self.f.close()
+
     def step(self) -> None:
         """step will move the `forward` pointer one step ahead
 
@@ -97,6 +101,10 @@ class AllBuffer(Buffer):
         self.forward = 0
         self.lineno = 1
         self.file = self.f.read()
+
+    def close(self):
+        super().close()
+        del self.file
 
     def step(self) -> None:
         self.forward = min(len(self.file), self.forward + 1)
