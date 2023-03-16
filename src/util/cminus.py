@@ -35,12 +35,13 @@ class CMinus:
 
         NOTE: Get_Token and Install_Id should be called in the scanner itself
         """
+        other = SPEC + W + EOT
         return AutoTail(
             [
                 AutoTailState(
                     [
                         Transition(L+D, next_state=0),
-                        Transition(L+D, is_other=True, next_state=1)
+                        Transition(other, next_state=1)
                     ]
                 ),
                 AutoTailState([], True, True)
@@ -50,7 +51,19 @@ class CMinus:
 
     @classproperty
     def num_tail() -> DfaTail:
-        pass
+        other = SPEC + W + EOT
+        return AutoTail(
+            [
+                AutoTailState(
+                    [
+                        Transition(L+D, next_state=0),
+                        Transition(other, next_state=1)
+                    ]
+                ),
+                AutoTailState([], True, True)
+            ],
+            TokenType.ID
+        )
 
     @classproperty
     def symbol_tail() -> DfaTail:
