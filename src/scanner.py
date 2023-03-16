@@ -158,7 +158,7 @@ class Scanner:
         self.dfa = get_language()
         self.buf = AllBuffer()
 
-    def get_next_token(self):
+    def get_token(self):
         """returns next token
 
         This function will try to get the next token type with usage of the Dfa
