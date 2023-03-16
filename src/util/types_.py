@@ -1,8 +1,19 @@
+import string
 from typing import Tuple, List
 from enum import Enum
 from dataclasses import dataclass
 
+
+# Keywords
 KEYWORDS = ['if', 'else', 'void', 'int', 'repeat', 'break', 'until', 'return']
+# Letters
+L = string.ascii_letters
+# Digits
+D = string.digits
+# symbols without star (*) and (=) (these will have separate tails)
+S = ";:,[](){}+-*<"
+# Whitespaces
+W = string.whitespace
 
 
 class TokenType(Enum):
