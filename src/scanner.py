@@ -11,7 +11,7 @@ class Scanner:
     This module will use Buffer and Dfa of the language to get tokens.
     """
 
-    def __init__(self, log=False, buffer=None, file=None) -> None:
+    def __init__(self, buffer=None, file=None) -> None:
         self.dfa = CMinus.get_language()
         if buffer:
             self.buf = buffer
@@ -73,4 +73,5 @@ class Scanner:
         return e.args[0], err_lexim
 
     def finish(self, file_tokens=None, file_errors=None, file_symbols=None):
-        self.logger.create_log(self.symbol_table.table, file_tokens, file_errors, file_symbols)
+        self.logger.create_log(self.symbol_table.table,
+                               file_tokens, file_errors, file_symbols)
