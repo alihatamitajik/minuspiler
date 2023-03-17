@@ -31,6 +31,9 @@ class TokenType(Enum):
     """
     NUM, ID, KEYWORD, SYMBOL, COMMENT, WHITESPACE, DOLOR = range(7)
 
+    def __str__(self) -> str:
+        return self.name
+
 
 """Token
 
@@ -47,6 +50,9 @@ class ErrorType(Enum):
     INVALID_NUMBER = 1,
     UNMATCHED_COMMENT = 2,
     UNCLOSED_COMMENT = 3
+
+    def __str__(self) -> str:
+        return self.name.title().replace("_", " ")
 
 
 """Err
