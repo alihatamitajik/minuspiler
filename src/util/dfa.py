@@ -131,8 +131,9 @@ class AutoTail(DfaTail):
                     matched = True
                     break
             if matched:
-                buffer.step()
                 state = self.states[state_idx]
+                if not state.is_accepting:
+                    buffer.step()
             else:
                 raise ValueError(self.error)
 
