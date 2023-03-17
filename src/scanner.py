@@ -10,10 +10,12 @@ class Scanner:
     This module will use Buffer and Dfa of the language to get tokens.
     """
 
-    def __init__(self, log=False, buffer=None) -> None:
+    def __init__(self, log=False, buffer=None, file=None) -> None:
         self.dfa = CMinus.get_language()
         if buffer:
             self.buf = buffer
+        elif file:
+            self.buf = AllBuffer(file=file)
         else:
             self.buf = AllBuffer()
         self.log = log
@@ -46,13 +48,25 @@ class Scanner:
 
         NOTE: Logging is done inside this function.
         """
-        pass
+        while True:
+            cur_line_no = self.buf.lineno
+            tt, lexim = self.get_token()
+            if tt in ErrorType:
+                # TODO: logging
+                pass
+            elif tt in TokenType:
+                if tt in [TokenType.COMMENT, TokenType.WHITESPACE]:
+                    continue
+                else:
+                    # TODO: logging
+                    return tt, lexim
+            else:
+                raise TypeError(f'Invalid Type [{tt}]')
 
     def panic(self, e: ValueError):
         """Panic Mode
 
-        This function will handle discarding of the input buffer and logging the
-        exception. TODO
+        This function will handle discarding of the input buffer.
         """
         err_lexim = self.buf.extract()
         return e.args[0], err_lexim
