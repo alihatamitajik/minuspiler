@@ -53,7 +53,6 @@ class Dfa:
         c = buffer()
         for entry, tail in self.tails:
             if c in entry:
-                buffer.step()
                 return tail.match(buffer)
         if c == '\x05':
             return TokenType.DOLOR, False
@@ -125,6 +124,7 @@ class AutoTail(DfaTail):
         state_idx = 0
         state = self.states[state_idx]
         while not state.is_accepting:
+            buffer.step()
             c = buffer()
             matched = False
             for t in state.transitions:
@@ -134,8 +134,6 @@ class AutoTail(DfaTail):
                     break
             if matched:
                 state = self.states[state_idx]
-                if not state.is_accepting:
-                    buffer.step()
             else:
                 raise ValueError(self.error)
 

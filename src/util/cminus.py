@@ -5,6 +5,7 @@ from util.types_ import *
 
 class AsteriskTail(DfaTail):
     def match(self, buffer) -> Tuple[TokenType, bool]:
+        buffer.step()
         c = buffer()
         if c == "/":
             raise ValueError(ErrorType.UNMATCHED_COMMENT)
@@ -29,6 +30,7 @@ class CommentTail(DfaTail):
             buffer.step()
 
     def match(self, buffer) -> Tuple[TokenType, bool]:
+        buffer.step()
         c = buffer()
         if c != "*":
             raise ValueError(ErrorType.INVALID_INPUT)

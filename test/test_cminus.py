@@ -14,7 +14,9 @@ class CMinusTest(unittest.TestCase):
         t, r = self.dfa(buf)
         self.assertEqual(t, TokenType.WHITESPACE)
         self.assertEqual(r, False)
-        self.assertEqual(buf(), '\x05')
+        # buffer should return the whitespace because it should not proceed if
+        # it was not retreat so in extract method proceeding is happening.
+        self.assertEqual(buf(), ' ')
 
     def test_correct_num(self):
         buf = AllBuffer(fake="12345 ")
