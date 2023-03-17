@@ -62,7 +62,7 @@ class Transition:
 
     literal: if the input is in literal it is accepting
     """
-    literal: str = ""
+    literal: str
     next_state: int = None
     can_none: bool = True
 
@@ -74,7 +74,7 @@ class AutoTailState:
 
     Accepting states that has callback function in them, callback function
     should be returned as type instead of automatic type return"""
-    transitions: List[Transition] = []
+    transitions: List[Transition]
     is_accepting: bool = False
     is_retreat: bool = False
     callback = None
