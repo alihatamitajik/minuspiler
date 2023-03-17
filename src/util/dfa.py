@@ -56,7 +56,7 @@ class Dfa:
                 return tail.match(buffer)
         if c == '\x05':
             return TokenType.DOLOR, False
-        raise ValueError(ErrorType.Invalid_input)
+        raise ValueError(ErrorType.INVALID_INPUT)
 
 
 class DfaTail:
@@ -103,7 +103,7 @@ class AutoTail(DfaTail):
     """
 
     def __init__(self, states: List[AutoTailState], type: TokenType,
-                 error: ErrorType = ErrorType.Invalid_input) -> None:
+                 error: ErrorType = ErrorType.INVALID_INPUT) -> None:
         self.states = states
         self.type = type
         self.error = error

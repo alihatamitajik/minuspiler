@@ -2,7 +2,7 @@ from typing import Tuple
 
 from typing import Dict
 
-from src.util.types_ import TokenType
+from src.util.types_ import TokenType, ErrorType
 
 
 class Logger:
@@ -44,11 +44,24 @@ class Logger:
             symbol_table_string += str(i + 1) + ".\t" + symbols[i] + "\n"
         return symbol_table_string
 
-    def create_errors_string(self, errors: Dict[str, str]):
+    def create_errors_string(self, errors):
         errors_string = ""
         for key in errors.keys():
             line = str(key) + ".\t"
-            line += "(" + errors[key][0] + ", " + errors[key][1].split(".")[1].replace("_", " ") + ") "
+            tt = errors[key][1]
+            error_type = ""
+
+            if str(tt).split(".")[1] == "INVALID_INPUT":
+                error_type = "Invalid input"
+            elif str(tt).split(".")[1] == "INVALID_NUMBER":
+                error_type = "Invalid number"
+            elif str(tt).split(".")[1] == "UNCLOSED_COMMENT":
+                error_type = "Unclosed comment"
+            elif str(tt).split(".")[1] == "UNMATCHED_COMMENT":
+                error_type = "Unmatched comment"
+
+            line += "(" + errors[key][0] + ", " + error_type + ") "
+
             line += "\n"
             errors_string += line
         if errors_string == "":
@@ -70,9 +83,9 @@ class Logger:
             self.save_as_text(self.create_tokens_string(self.tokens), file_name="tokens.txt")
             self.save_as_text(self.create_symbol_table_string(symbol_table), file_name="symbol_table.txt")
         else:
-            self.save_as_text(self.create_errors_string(self.errors), file = file_errors)
-            self.save_as_text(self.create_tokens_string(self.tokens), file = file_tokens)
-            self.save_as_text(self.create_symbol_table_string(symbol_table), file = file_symbols)
+            self.save_as_text(self.create_errors_string(self.errors), file=file_errors)
+            self.save_as_text(self.create_tokens_string(self.tokens), file=file_tokens)
+            self.save_as_text(self.create_symbol_table_string(symbol_table), file=file_symbols)
 
     def add_error(self, cur_line_no, lexim, tt):
         if len(lexim) > 6:

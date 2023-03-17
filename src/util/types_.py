@@ -43,10 +43,10 @@ Token = Tuple[TokenType, str]
 
 class ErrorType(Enum):
     """Types of error to be passed to the panic method"""
-    Invalid_input = 0,
-    Invalid_number = 1,
-    Unmatched_comment = 2,
-    Unclosed_comment = 3
+    INVALID_INPUT = 0,
+    INVALID_NUMBER = 1,
+    UNMATCHED_COMMENT = 2,
+    UNCLOSED_COMMENT = 3
 
 
 """Err

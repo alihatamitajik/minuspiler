@@ -53,7 +53,7 @@ class Scanner:
             cur_line_no = self.buf.lineno
             tt, lexim = self.get_token()
             if tt in ErrorType:
-                self.logger.add_error(cur_line_no, str(lexim), str(tt))
+                self.logger.add_error(cur_line_no, str(lexim), tt)
                 pass
             elif tt in TokenType:
                 if tt in [TokenType.COMMENT, TokenType.WHITESPACE]:
