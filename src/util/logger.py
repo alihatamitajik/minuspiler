@@ -36,10 +36,10 @@ class Logger:
 
     def create_tokens_string(self, tokens: dict):
         tokens_string = ""
-        for key in tokens.keys():
+        for key, item in tokens.items():
             line = ""
-            for tup in tokens[key]:
-                line += "(" + str(tup[0]) + ", " + tup[1] + ") "
+            for tt, lexim in item:
+                line += f"({tt}, {lexim}) "
             line += "\n"
             if line != "\n":
                 tokens_string += str(key) + ".\t" + line
@@ -47,17 +47,14 @@ class Logger:
 
     def create_symbol_table_string(self, symbol_table: dict):
         symbol_table_string = ""
-        symbols = list(symbol_table.keys())
-        for i in range(len(symbols)):
-            symbol_table_string += str(i + 1) + ".\t" + symbols[i] + "\n"
+        for i, entry in enumerate(symbol_table.keys()):
+            symbol_table_string += f"{i + 1}.\t{entry}\n"
         return symbol_table_string
 
     def create_errors_string(self, errors):
         errors_string = ""
-        for key in errors.keys():
-            line = str(key) + ".\t"
-            line += "(" + errors[key][0] + ", " + str(errors[key][1]) + ") "
-            line += "\n"
+        for key, err in errors.keys():
+            line = f"{key}.\t({err[0]}, {err[1]}) \n"
             errors_string += line
         if errors_string == "":
             return "There is no lexical error."
