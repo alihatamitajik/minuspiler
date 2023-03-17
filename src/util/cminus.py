@@ -45,24 +45,24 @@ class CMinus:
     def get_language() -> Dfa:
         return Dfa(
             [
-                (W, CMinus.whitespace_tail),
-                (L, CMinus.id_keyword_tail),
-                (D, CMinus.num_tail)
-                (S, CMinus.symbol_tail),
-                ("=", CMinus.equals_tail),
-                ("*", CMinus.asterisk_tail),
-                ("/", CMinus.comment_tail)
+                (W, CMinus.whitespace_tail()),
+                (L, CMinus.id_keyword_tail()),
+                (D, CMinus.num_tail()),
+                (S, CMinus.symbol_tail()),
+                ("=", CMinus.equals_tail()),
+                ("*", CMinus.asterisk_tail()),
+                ("/", CMinus.comment_tail())
             ]
         )
 
-    @classproperty
+    @staticmethod
     def whitespace_tail() -> DfaTail:
         return AutoTail(
             [AutoTailState([], True, False)],
             TokenType.WHITESPACE
         )
 
-    @classproperty
+    @staticmethod
     def id_keyword_tail() -> DfaTail:
         """ID/Keyword Tail
 
@@ -82,7 +82,7 @@ class CMinus:
             TokenType.ID
         )
 
-    @classproperty
+    @staticmethod
     def num_tail() -> DfaTail:
         other = SPEC + W + EOT
         return AutoTail(
@@ -99,14 +99,14 @@ class CMinus:
             ErrorType.INVALID_NUMBER
         )
 
-    @classproperty
+    @staticmethod
     def symbol_tail() -> DfaTail:
         return AutoTail(
             [AutoTailState([], True, False)],
             TokenType.SYMBOL
         )
 
-    @classproperty
+    @staticmethod
     def equals_tail() -> DfaTail:
         other = L + D + W + S + "*/" + EOT
         return AutoTail(
@@ -121,10 +121,10 @@ class CMinus:
             TokenType.SYMBOL
         )
 
-    @classproperty
+    @staticmethod
     def asterisk_tail() -> DfaTail:
         return AsteriskTail()
 
-    @classproperty
+    @staticmethod
     def comment_tail() -> DfaTail:
         return CommentTail()
