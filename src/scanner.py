@@ -72,6 +72,28 @@ class Scanner:
         err_lexim = self.buf.extract()
         return e.args[0], err_lexim
 
+    @property
+    def iterator(self):
+        """Generator of tokens
+
+        Yields:
+            TokenType: type of the lexim returned
+            str: lexim of the token
+        """
+        tt = TokenType.WHITESPACE
+        while tt != TokenType.DOLOR:
+            tt, lexim = self.get_next_token()
+            yield tt, lexim
+
+    def iterate_ignore(self):
+        """Iterates through tokens and ignore tokens
+
+        This function will iterate through the input file and build logger
+        dictionaries only.
+        """
+        for _, _ in self.iterator:
+            pass
+
     def finish(self, file_tokens=None, file_errors=None, file_symbols=None):
         self.logger.create_log(self.symbol_table.table,
                                file_tokens, file_errors, file_symbols)
