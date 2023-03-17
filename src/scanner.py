@@ -94,6 +94,6 @@ class Scanner:
         for _, _ in self.iterator:
             pass
 
-    def finish(self, file_tokens=None, file_errors=None, file_symbols=None):
+    def dump_log(self, file_tokens=None, file_errors=None, file_symbols=None):
         self.logger.create_log(self.symbol_table.table,
                                file_tokens, file_errors, file_symbols)
