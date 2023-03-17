@@ -36,10 +36,7 @@ class Scanner:
                     self.symbol_table.install(lexim)
             return tok, lexim
         except ValueError as e:
-            self.panic(e)
-        except e:
-            # handle general errors (?)
-            pass
+            return self.panic(e)
 
     def get_next_token(self):
         """Get Next Token
