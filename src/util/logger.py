@@ -67,7 +67,6 @@ class Logger:
             f.close()
         else:
             file.write(string)
-            file.close()
 
     def create_log(self, symbol_table, file_tokens=None, file_errors=None, file_symbols=None):
         if file_symbols == None:
