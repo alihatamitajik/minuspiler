@@ -26,8 +26,10 @@ class TokenType(Enum):
     """Token Type
 
     Type of the token in the C-Minus Language
+
+    DOLOR shows end of file.
     """
-    NUM, ID, KEYWORD, SYMBOL, COMMENT, WHITESPACE = range(6)
+    NUM, ID, KEYWORD, SYMBOL, COMMENT, WHITESPACE, DOLOR = range(7)
 
 
 """Token
