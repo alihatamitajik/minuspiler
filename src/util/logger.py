@@ -34,16 +34,19 @@ class Logger:
         self.tokens = {}
         self.errors = {}
 
-    def create_tokens_string(self, tokens: dict):
-        tokens_string = ""
-        for key, item in tokens.items():
+    def create_string(self, token_dict):
+        string = ""
+        for key, item in token_dict.items():
             line = ""
-            for tt, lexim in item:
-                line += f"({tt}, {lexim}) "
+            for entry0, entry1 in item:
+                line += f"({entry0}, {entry1}) "
             line += "\n"
             if line != "\n":
-                tokens_string += str(key) + ".\t" + line
-        return tokens_string
+                string += str(key) + ".\t" + line
+        return string
+
+    def create_tokens_string(self):
+        return self.create_string(self.tokens)
 
     def create_symbol_table_string(self, symbol_table: dict):
         symbol_table_string = ""
@@ -51,11 +54,8 @@ class Logger:
             symbol_table_string += f"{i + 1}.\t{entry}\n"
         return symbol_table_string
 
-    def create_errors_string(self, errors):
-        errors_string = ""
-        for key, err in errors.items():
-            line = f"{key}.\t({err[0]}, {err[1]}) \n"
-            errors_string += line
+    def create_errors_string(self):
+        errors_string = self.create_string(self.errors)
         if errors_string == "":
             return "There is no lexical error."
         return errors_string
@@ -70,30 +70,31 @@ class Logger:
 
     def create_log(self, symbol_table, file_tokens=None, file_errors=None, file_symbols=None):
         if file_symbols == None:
-            self.save_as_text(self.create_errors_string(
-                self.errors), file_name="lexical_errors.txt")
-            self.save_as_text(self.create_tokens_string(
-                self.tokens), file_name="tokens.txt")
+            self.save_as_text(self.create_errors_string(),
+                              file_name="lexical_errors.txt")
+            self.save_as_text(self.create_tokens_string(),
+                              file_name="tokens.txt")
             self.save_as_text(self.create_symbol_table_string(
                 symbol_table), file_name="symbol_table.txt")
         else:
-            self.save_as_text(self.create_errors_string(
-                self.errors), file=file_errors)
-            self.save_as_text(self.create_tokens_string(
-                self.tokens), file=file_tokens)
+            self.save_as_text(self.create_errors_string(),
+                              file=file_errors)
+            self.save_as_text(self.create_tokens_string(),
+                              file=file_tokens)
             self.save_as_text(self.create_symbol_table_string(
                 symbol_table), file=file_symbols)
 
     def add_error(self, cur_line_no, lexim, tt):
-        if len(lexim) > 6:
-            self.errors[cur_line_no] = (lexim[:7] + "...", tt)
+        err = (lexim[:7] + "..." if len(lexim) > 6 else lexim, tt)
+        if cur_line_no in self.errors:
+            self.errors[cur_line_no].append(err)
         else:
-            self.errors[cur_line_no] = (lexim, tt)
+            self.errors[cur_line_no] = [err]
 
     def add_token(self, cur_line_no, lexim, tt):
         if tt == TokenType.DOLOR:
             return
-        if cur_line_no in self.tokens.keys():
+        if cur_line_no in self.tokens:
             self.tokens[cur_line_no].append((tt, lexim))
         else:
             self.tokens[cur_line_no] = [(tt, lexim)]
