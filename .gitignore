@@ -131,6 +131,6 @@ dmypy.json
 
 # Ignore test input.txt in the source folder
 src/input*
-lexical_errors.txt
-symbol_table.txt
-tokens.txt
+/lexical_errors.txt
+/symbol_table.txt
+/tokens.txt
