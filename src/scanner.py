@@ -21,7 +21,7 @@ class Scanner:
         self.log = log
         self.symbol_table = SymbolTable()
 
-    def get_token(self) -> Tuple[TokenType | ErrorType, str]:
+    def get_token(self) -> Tuple[TokenType, str]:
         """returns next token
 
         This function will try to get the next token type with usage of the Dfa

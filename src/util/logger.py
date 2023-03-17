@@ -1,6 +1,8 @@
 from typing import Tuple
 from types_ import TokenType
 
+from typing import Dict
+
 Token = Tuple[TokenType, str]
 
 tokens = {1: [(TokenType.KEYWORD, "void"), (TokenType.ID, "main"), (TokenType.SYMBOL, "("),
@@ -9,12 +11,13 @@ tokens = {1: [(TokenType.KEYWORD, "void"), (TokenType.ID, "main"), (TokenType.SY
               (TokenType.SYMBOL, ";")]}
 
 errors = {7: ("3d", "Invalid number"),
-         9: ("cd!", "Invalid input"),
-         11: ("*/", "Unmatched comment"),
-         14: ("@", "Invalid input"),
-         16: ("/* comm...", "Unclosed comment")}
+          9: ("cd!", "Invalid input"),
+          11: ("*/", "Unmatched comment"),
+          14: ("@", "Invalid input"),
+          16: ("/* comm...", "Unclosed comment")}
 
-symbol_table = {"break": [], "else":[], "if":[]}
+symbol_table = {"break": [], "else": [], "if": []}
+
 
 def create_tokens_string(tokens: dict):
     tokens_string = ""
@@ -34,7 +37,8 @@ def create_symbol_table_string(symbol_table: dict):
         symbol_table_string += str(i+1) + ".\t" + symbols[i] + "\n"
     return symbol_table_string
 
-def create_errors_string(errors: {str, str}):
+
+def create_errors_string(errors: Dict[str, str]):
     errors_string = ""
     for key in errors.keys():
         line = str(key) + ".\t"
