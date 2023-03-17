@@ -56,7 +56,7 @@ class Dfa:
                 return tail.match(buffer)
         if c == '\x05':
             return TokenType.DOLOR, False
-        raise ValueError('Invalid Input')
+        raise ValueError(ErrorType.INVALID_INPUT)
 
 
 class DfaTail:

@@ -32,3 +32,17 @@ class GetTokenTest(unittest.TestCase):
             tt, lexim = scanner.get_token()
             self.assertEqual(expected_type, tt)
             self.assertEqual(expected_lexim, lexim)
+
+    def test_panic_first_char_invalid(self):
+        buf = AllBuffer(fake="{cde = @2;")
+        scanner = Scanner(buffer=buf)
+        expected = [
+            (TokenType.SYMBOL, "{"), (TokenType.ID, "cde"),
+            (TokenType.WHITESPACE, " "), (TokenType.SYMBOL, "="),
+            (TokenType.WHITESPACE, " "), (ErrorType.INVALID_INPUT, "@"),
+            (TokenType.NUM, "2"), (TokenType.SYMBOL, ";"), (TokenType.DOLOR, "")
+        ]
+        for expected_type, expected_lexim in expected:
+            tt, lexim = scanner.get_token()
+            self.assertEqual(expected_type, tt)
+            self.assertEqual(expected_lexim, lexim)
