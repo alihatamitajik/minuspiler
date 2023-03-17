@@ -9,6 +9,8 @@ class AsteriskTail(DfaTail):
         c = buffer()
         if c == "/":
             raise ValueError(ErrorType.UNMATCHED_COMMENT)
+        elif c not in SIGMA:
+            raise ValueError(ErrorType.INVALID_INPUT)
         else:
             return TokenType.SYMBOL, True
 

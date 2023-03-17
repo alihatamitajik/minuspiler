@@ -16,10 +16,10 @@ S = ";:,[](){}+-<"
 W = string.whitespace
 # Extended Symbols (All special characters that can be used in code)
 SPEC = ";:,[](){}+-</*="
-# All accepted characters
-SIGMA = L + D + SPEC + W
 # End of Text
 EOT = "\x05"
+# All accepted characters
+SIGMA = L + D + SPEC + W + EOT
 
 
 class TokenType(Enum):
