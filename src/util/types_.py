@@ -14,10 +14,10 @@ D = string.digits
 S = ";:,[](){}+-<"
 # Whitespaces
 W = string.whitespace
-# All accepted characters
-SIGMA = L + D + S + W
 # Extended Symbols (All special characters that can be used in code)
 SPEC = ";:,[](){}+-</*="
+# All accepted characters
+SIGMA = L + D + SPEC + W
 # End of Text
 EOT = "\x05"
 
@@ -49,10 +49,11 @@ class ErrorType(Enum):
     INVALID_INPUT = 0,
     INVALID_NUMBER = 1,
     UNMATCHED_COMMENT = 2,
-    UNCLOSED_COMMENT = 3
+    UNCLOSED_COMMENT = 3,
+    BAD_SLASH = 4
 
     def __str__(self) -> str:
-        return self.name.title().replace("_", " ")
+        return self.name.replace("_", " ").lower().capitalize()
 
 
 """Err

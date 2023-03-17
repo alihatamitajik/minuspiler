@@ -33,7 +33,7 @@ class CommentTail(DfaTail):
         buffer.step()
         c = buffer()
         if c != "*":
-            raise ValueError(ErrorType.INVALID_INPUT)
+            raise ValueError(ErrorType.BAD_SLASH)
         else:
             buffer.step()  # "/*" is matched
             return self.match_end(buffer)

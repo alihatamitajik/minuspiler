@@ -1,6 +1,6 @@
 from util.buffer import AllBuffer
 from util.cminus import CMinus
-from util.types_ import TokenType, ErrorType, KEYWORDS, SymbolTable
+from util.types_ import TokenType, ErrorType, KEYWORDS, SymbolTable, SIGMA
 from typing import Tuple
 from util.logger import Logger
 
@@ -69,8 +69,16 @@ class Scanner:
 
         This function will handle discarding of the input buffer.
         """
-        err_lexim = self.buf.extract()
-        return e.args[0], err_lexim
+        et = e.args[0]
+        if et == ErrorType.BAD_SLASH:
+            et = ErrorType.INVALID_INPUT
+            if self.buf() in SIGMA:
+                err_lexim = self.buf.extract_retreat()
+            else:
+                err_lexim = self.buf.extract()
+        else:
+            err_lexim = self.buf.extract()
+        return et, err_lexim
 
     @property
     def iterator(self):
