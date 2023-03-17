@@ -9,9 +9,12 @@ class Scanner:
     This module will use Buffer and Dfa of the language to get tokens.
     """
 
-    def __init__(self, log=False) -> None:
+    def __init__(self, log=False, buffer=None) -> None:
         self.dfa = CMinus.get_language()
-        self.buf = AllBuffer()
+        if buffer:
+            self.buf = buffer
+        else:
+            self.buf = AllBuffer()
         self.log = log
         self.symbol_table = SymbolTable()
 
