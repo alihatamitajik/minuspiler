@@ -57,4 +57,5 @@ class Scanner:
         This function will handle discarding of the input buffer and logging the
         exception. TODO
         """
-        pass
+        err_lexim = self.buf.extract()
+        return e.args[0], err_lexim
