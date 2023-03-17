@@ -87,6 +87,8 @@ class SymbolTable:
         """TODO: dumb implementation of symbol table. it could be better it
         think"""
         self.table = {}
+        for key in sorted(KEYWORDS):
+            self.table[key] = None
 
     def dump(filename):
         """dumps symbol table entries into a file
