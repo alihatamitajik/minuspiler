@@ -1,16 +1,35 @@
+import string
 from typing import Tuple, List
 from enum import Enum
 from dataclasses import dataclass
 
+
+# Keywords
 KEYWORDS = ['if', 'else', 'void', 'int', 'repeat', 'break', 'until', 'return']
+# Letters
+L = string.ascii_letters
+# Digits
+D = string.digits
+# symbols without star (*) and (=) (these will have separate tails)
+S = ";:,[](){}+-<"
+# Whitespaces
+W = string.whitespace
+# All accepted characters
+SIGMA = L + D + S + W
+# Extended Symbols (All special characters that can be used in code)
+SPEC = ";:,[](){}+-</*="
+# End of Text
+EOT = "\x05"
 
 
 class TokenType(Enum):
     """Token Type
 
     Type of the token in the C-Minus Language
+
+    DOLOR shows end of file.
     """
-    NUM, ID, KEYWORD, SYMBOL, COMMENT, WHITESPACE = range(6)
+    NUM, ID, KEYWORD, SYMBOL, COMMENT, WHITESPACE, DOLOR = range(7)
 
 
 """Token
@@ -22,6 +41,20 @@ type of the token, which is an integer, and the lexim of the token.
 Token = Tuple[TokenType, str]
 
 
+class ErrorType(Enum):
+    """Types of error to be passed to the panic method"""
+    INVALID_INPUT = 0,
+    INVALID_NUMBER = 1,
+    UNMATCHED_COMMENT = 2,
+    UNCLOSED_COMMENT = 3
+
+
+"""Err
+<lexim, error type, #line>
+"""
+Err = Tuple[str, ErrorType, int]
+
+
 @dataclass
 class Transition:
     """Transition
@@ -30,22 +63,23 @@ class Transition:
     be careful with the indexes.
 
     literal: if the input is in literal it is accepting
-
-    is_other: if this option is true, then input should not be in the literal to
-    be accepted.
     """
-    is_other: bool = False
+    literal: str
     next_state: int = None
-    literal: str = ""
+    can_none: bool = True
 
 
 @dataclass
 class AutoTailState:
     """Each state can have multiple transition and will be checked in order of
-    the list. If the state is accepting dfa will return its type"""
-    transitions: List[Transition] = []
+    the list. If the state is accepting dfa will return its type.
+
+    Accepting states that has callback function in them, callback function
+    should be returned as type instead of automatic type return"""
+    transitions: List[Transition]
     is_accepting: bool = False
     is_retreat: bool = False
+    callback = None
 
 
 class SymbolTable:
@@ -55,6 +89,8 @@ class SymbolTable:
         """TODO: dumb implementation of symbol table. it could be better it
         think"""
         self.table = {}
+        for key in sorted(KEYWORDS):
+            self.table[key] = None
 
     def dump(filename):
         """dumps symbol table entries into a file
@@ -72,3 +108,8 @@ class SymbolTable:
         """
         if id_key not in self.table:
             self.table[id_key] = None
+
+
+class classproperty(property):
+    def __get__(self, cls, owner):
+        return classmethod(self.fget).__get__(None, owner)()

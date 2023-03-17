@@ -11,7 +11,7 @@ class Buffer:
         """returns char at the current forward position
 
         this function will allow buffer to be a callable and when it is called
-        it should return the character at the current position or None if we
+        it should return the character at the current position or \x05 if we
         reach EOF.
         """
         raise NotImplementedError()
@@ -91,16 +91,19 @@ class AllBuffer(Buffer):
 
     def __call__(self, *args, **kwds) -> str:
         if self.forward == len(self.file):
-            return None
+            return '\x05'
         else:
             return self.file[self.forward]
 
-    def __init__(self, file="input.txt") -> None:
-        super().__init__(file)
+    def __init__(self, file="input.txt", fake=None) -> None:
+        if not fake:
+            super().__init__(file)
+            self.file = self.f.read()
+        else:
+            self.file = fake
         self.beginning = 0
         self.forward = 0
         self.lineno = 1
-        self.file = self.f.read()
 
     def close(self):
         super().close()
@@ -113,7 +116,8 @@ class AllBuffer(Buffer):
 
     def extract(self) -> str:
         retval = self.file[self.beginning:self.forward+1]
-        self.beginning = self.forward = self.forward + 1
+        self.step()
+        self.beginning = self.forward
         return retval
 
     def extract_retreat(self) -> str:

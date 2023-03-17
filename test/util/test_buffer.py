@@ -3,7 +3,7 @@ import os
 
 from util.buffer import AllBuffer
 
-TESTDATA_FILENAME = os.path.join(os.path.dirname(__file__), 'input.txt')
+TESTDATA_FILENAME = os.path.join(os.path.dirname(__file__), '../input.txt')
 
 
 class AllBufferTest(unittest.TestCase):
@@ -32,6 +32,7 @@ class AllBufferTest(unittest.TestCase):
         self.assertEqual(self.buf.extract(), "void")
         self.assertEqual(self.buf.forward, 4)
         self.assertEqual(self.buf.beginning, 4)
+        self.assertEqual(self.buf(), " ")
 
     def test_extract_retreat(self):
         pass
