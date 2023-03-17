@@ -26,6 +26,7 @@ class CommentTail(DfaTail):
                     return TokenType.COMMENT, False
                 elif c != "*":
                     state = 0
+            buffer.step()
 
     def match(self, buffer) -> Tuple[TokenType, bool]:
         c = buffer()
