@@ -1,5 +1,6 @@
 from util.buffer import AllBuffer
 from util.cminus import CMinus
+from util.types_ import TokenType, ErrorType, KEYWORDS, SymbolTable
 
 
 class Scanner:
@@ -8,9 +9,11 @@ class Scanner:
     This module will use Buffer and Dfa of the language to get tokens.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, log=False) -> None:
         self.dfa = CMinus.get_language()
         self.buf = AllBuffer()
+        self.log = log
+        self.symbol_table = SymbolTable()
 
     def get_token(self):
         """returns next token
@@ -18,17 +21,30 @@ class Scanner:
         This function will try to get the next token type with usage of the Dfa
         and 
         """
-        cur_lineno = self.buf.get_lineno()
         try:
-            token_type, is_retreat = self.dfa.match(self.buf)
-            # TODO: log token
-            lexim = self.buf.extract()
-            # TODO: return Token
+            tok, ret = self.dfa.match(self.buf)
+            lexim = self.buf.extract_retreat() if ret else self.buf.extract()
+            if tok == TokenType.ID:
+                if lexim in KEYWORDS:
+                    tok = TokenType.KEYWORD
+                else:
+                    self.symbol_table.install(lexim)
+            return tok, lexim
         except ValueError as e:
             self.panic(e)
         except e:
-            # handle general errors
+            # handle general errors (?)
             pass
+
+    def get_next_token(self):
+        """Get Next Token
+
+        This function will call get_token function until it receives a valuable
+        token (COMMENT and WHITESPACE tokens will be ignored). 
+
+        NOTE: Logging is done inside this function.
+        """
+        pass
 
     def panic(self, e: ValueError):
         """Panic Mode
