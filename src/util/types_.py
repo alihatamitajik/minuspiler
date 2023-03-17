@@ -19,7 +19,7 @@ SIGMA = L + D + S + W
 # Extended Symbols (All special characters that can be used in code)
 SPEC = ";:,[](){}+-</*="
 # End of Text
-EOT = "\x03"
+EOT = "\x05"
 
 
 class TokenType(Enum):
