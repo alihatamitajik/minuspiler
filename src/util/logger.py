@@ -51,6 +51,8 @@ class Logger:
             line += "(" + errors[key][0] + ", " + errors[key][1].split(".")[1].replace("_", " ") + ") "
             line += "\n"
             errors_string += line
+        if errors_string == "":
+            return "There is no lexical error."
         return errors_string
 
     def save_as_text(self, string: str, file_name: str):
