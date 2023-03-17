@@ -2,7 +2,7 @@ from typing import Tuple
 
 from typing import Dict
 
-from src.util.types_ import TokenType, ErrorType
+from util.types_ import TokenType, ErrorType
 
 
 class Logger:
@@ -79,13 +79,19 @@ class Logger:
 
     def create_log(self, symbol_table, file_tokens=None, file_errors=None, file_symbols=None):
         if file_symbols == None:
-            self.save_as_text(self.create_errors_string(self.errors), file_name="lexical_errors.txt")
-            self.save_as_text(self.create_tokens_string(self.tokens), file_name="tokens.txt")
-            self.save_as_text(self.create_symbol_table_string(symbol_table), file_name="symbol_table.txt")
+            self.save_as_text(self.create_errors_string(
+                self.errors), file_name="lexical_errors.txt")
+            self.save_as_text(self.create_tokens_string(
+                self.tokens), file_name="tokens.txt")
+            self.save_as_text(self.create_symbol_table_string(
+                symbol_table), file_name="symbol_table.txt")
         else:
-            self.save_as_text(self.create_errors_string(self.errors), file=file_errors)
-            self.save_as_text(self.create_tokens_string(self.tokens), file=file_tokens)
-            self.save_as_text(self.create_symbol_table_string(symbol_table), file=file_symbols)
+            self.save_as_text(self.create_errors_string(
+                self.errors), file=file_errors)
+            self.save_as_text(self.create_tokens_string(
+                self.tokens), file=file_tokens)
+            self.save_as_text(self.create_symbol_table_string(
+                symbol_table), file=file_symbols)
 
     def add_error(self, cur_line_no, lexim, tt):
         if len(lexim) > 6:
