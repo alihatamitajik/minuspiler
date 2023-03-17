@@ -89,7 +89,7 @@ class CMinus:
             [
                 AutoTailState(
                     [
-                        Transition(L+D, next_state=0),
+                        Transition(D, next_state=0),
                         Transition(other, next_state=1)
                     ]
                 ),
