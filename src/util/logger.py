@@ -27,14 +27,14 @@ class Logger:
     def create_tokens_string(self, tokens: dict):
         tokens_string = ""
         for key in tokens.keys():
-            line = str(key) + ".\t"
+            line = ""
             for tup in tokens[key]:
-
                 if str(tup[0]).split(".")[1] == "DOLOR":
-                    return tokens_string
+                    continue
                 line += "(" + str(tup[0]).split(".")[1] + ", " + tup[1] + ") "
             line += "\n"
-            tokens_string += line
+            if line != "\n":
+                tokens_string += str(key) + ".\t" + line
         return tokens_string
 
     def create_symbol_table_string(self, symbol_table: dict):
