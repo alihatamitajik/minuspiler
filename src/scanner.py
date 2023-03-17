@@ -1,6 +1,7 @@
 from util.buffer import AllBuffer
 from util.cminus import CMinus
 from util.types_ import TokenType, ErrorType, KEYWORDS, SymbolTable
+from typing import Tuple
 
 
 class Scanner:
@@ -18,11 +19,12 @@ class Scanner:
         self.log = log
         self.symbol_table = SymbolTable()
 
-    def get_token(self):
+    def get_token(self) -> Tuple[TokenType | ErrorType, str]:
         """returns next token
 
         This function will try to get the next token type with usage of the Dfa
-        and 
+        and its lexim. If a lexical error happened, error type and problematic
+        lexim will be returned.
         """
         try:
             tok, ret = self.dfa.match(self.buf)
