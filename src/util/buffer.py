@@ -116,7 +116,7 @@ class AllBuffer(Buffer):
 
     def extract(self) -> str:
         retval = self.file[self.beginning:self.forward+1]
-        self.step
+        self.step()
         self.beginning = self.forward
         return retval
 
