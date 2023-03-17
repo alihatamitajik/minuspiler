@@ -53,7 +53,7 @@ class Logger:
 
     def create_errors_string(self, errors):
         errors_string = ""
-        for key, err in errors.keys():
+        for key, err in errors.items():
             line = f"{key}.\t({err[0]}, {err[1]}) \n"
             errors_string += line
         if errors_string == "":
