@@ -29,7 +29,7 @@ class Dfa:
 
     def __call__(self, *args, **kwds) -> Tuple[TokenType, bool]:
         """dfa(buffer) is equivalent of dfa.match(buffer)"""
-        self.match(args[0])
+        return self.match(args[0])
 
     def match(self, buffer) -> Tuple[TokenType, bool]:
         """accepts input
