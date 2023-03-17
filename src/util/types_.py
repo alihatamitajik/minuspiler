@@ -43,10 +43,10 @@ Token = Tuple[TokenType, str]
 
 class ErrorType(Enum):
     """Types of error to be passed to the panic method"""
-    INVALID_INPUT = 0,
-    INVALID_NUMBER = 1,
-    UNMATCHED_COMMENT = 2,
-    UNCLOSED_COMMENT = 3
+    Invalid_input = 0,
+    Invalid_number = 1,
+    Unmatched_comment = 2,
+    Unclosed_comment = 3
 
 
 """Err
@@ -92,7 +92,7 @@ class SymbolTable:
         for key in sorted(KEYWORDS):
             self.table[key] = None
 
-    def dump(filename):
+    def dump(self):
         """dumps symbol table entries into a file
 
         Args:

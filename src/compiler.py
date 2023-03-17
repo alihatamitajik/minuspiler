@@ -2,7 +2,7 @@ import os
 
 from util.types_ import TokenType
 from scanner import Scanner
-
+from util.logger import Logger
 
 if __name__ == "__main__":
     INPUT_FILENAME = os.path.join(os.path.dirname(__file__), 'input.txt')
@@ -10,3 +10,5 @@ if __name__ == "__main__":
     tt = TokenType.WHITESPACE
     while tt != TokenType.DOLOR:
         tt, lexim = scanner.get_next_token()
+
+    scanner.finish()

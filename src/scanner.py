@@ -2,6 +2,7 @@ from util.buffer import AllBuffer
 from util.cminus import CMinus
 from util.types_ import TokenType, ErrorType, KEYWORDS, SymbolTable
 from typing import Tuple
+from util.logger import Logger
 
 
 class Scanner:
@@ -18,8 +19,8 @@ class Scanner:
             self.buf = AllBuffer(file=file)
         else:
             self.buf = AllBuffer()
-        self.log = log
         self.symbol_table = SymbolTable()
+        self.logger = Logger()
 
     def get_token(self) -> Tuple[TokenType, str]:
         """returns next token
@@ -52,13 +53,13 @@ class Scanner:
             cur_line_no = self.buf.lineno
             tt, lexim = self.get_token()
             if tt in ErrorType:
-                # TODO: logging
+                self.logger.add_error(cur_line_no, str(lexim), str(tt))
                 pass
             elif tt in TokenType:
                 if tt in [TokenType.COMMENT, TokenType.WHITESPACE]:
                     continue
                 else:
-                    # TODO: logging
+                    self.logger.add_token(cur_line_no, str(lexim), tt)
                     return tt, lexim
             else:
                 raise TypeError(f'Invalid Type [{tt}]')
@@ -70,3 +71,6 @@ class Scanner:
         """
         err_lexim = self.buf.extract()
         return e.args[0], err_lexim
+
+    def finish(self, file_tokens=None, file_errors=None, file_symbols=None):
+        self.logger.create_log(self.symbol_table.table, file_tokens, file_errors, file_symbols)

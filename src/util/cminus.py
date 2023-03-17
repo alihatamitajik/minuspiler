@@ -8,7 +8,7 @@ class AsteriskTail(DfaTail):
         buffer.step()
         c = buffer()
         if c == "/":
-            raise ValueError(ErrorType.UNMATCHED_COMMENT)
+            raise ValueError(ErrorType.Unmatched_comment)
         else:
             return TokenType.SYMBOL, True
 
@@ -19,7 +19,7 @@ class CommentTail(DfaTail):
         while True:
             c = buffer()
             if c == EOT:
-                raise ValueError(ErrorType.UNCLOSED_COMMENT)
+                raise ValueError(ErrorType.Unclosed_comment)
             if state == 0 and c == "*":
                 state = 1
             elif state == 1:
@@ -99,7 +99,7 @@ class CMinus:
                 AutoTailState([], True, True)
             ],
             TokenType.NUM,
-            ErrorType.INVALID_NUMBER
+            ErrorType.Invalid_number
         )
 
     @staticmethod
