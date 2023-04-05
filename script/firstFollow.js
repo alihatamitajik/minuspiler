@@ -1,5 +1,5 @@
 const EMPTY_CHAIN = null;
-const END_MARKER = '\0';
+const END_MARKER = 'DOLOR';
 
 module.exports = (rules) => {
   let firstSets = {};
