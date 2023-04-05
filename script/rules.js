@@ -1,5 +1,5 @@
 
-export default [
+module.exports = [
     {"Program": [["Declaration-list"]]},
     {"Declaration-list": [["Declaration", "Declaration-list"], [null]]},
     {"Declaration": [["Declaration-initial", "Declaration-prime"]]},
