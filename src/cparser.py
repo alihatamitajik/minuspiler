@@ -45,6 +45,7 @@ class Parser:
         the token itself and extracts the terminal string from it so it can be
         matched in with the rules in the grammar.
         """
+        self.lineno = self.scanner.buf.lineno
         lookahead = self.scanner.get_next_token()
         self.lookahead = lookahead
         tt, lexim = lookahead
@@ -74,12 +75,24 @@ class Parser:
 
         This function tries to match current lookahead token with current
         diagram."""
-        node = Node(diagram, parent_node)
         trans = self.grammar[diagram]
         rule = trans.get_rule(self.terminal)
-        if not rule:  # no rule can be found
-            pass
-        elif not rule.rule[0]:  # epsilon move
+        # no rule can be found (i.e. not in first set or follow)
+        while not rule:
+            # PANIC!
+            if self.terminal in trans.follow:
+                print(f"#{self.lineno} : missing {diagram}")
+                return
+            else:
+                if self.terminal == 'DOLOR':
+                    print(f"#{self.lineno} : Unexpected EOF")
+                    raise EOFError()
+                else:
+                    print(f"#{self.lineno} : illegal {self.terminal}")
+                    self.step_lookahead()
+            rule = trans.get_rule(self.terminal)
+        node = Node(diagram, parent_node)
+        if not rule.rule[0]:  # epsilon move
             self.match_epsilon(node)
         else:
             for i, edge in enumerate(rule.rule):
@@ -89,18 +102,20 @@ class Parser:
                     if self.terminal == edge:
                         self.match(node)
                     else:  # if does not match missing something
-                        pass
-        return node
+                        print(f"#{self.lineno} : missing {edge}")
 
     def transit_program(self):
         """Program is constructed with "Program $"
 
         This rule is not in the set of rules but we can simulate this rule by
         adding a $ matching at the end of the transit"""
-        program = self.transit()
-        if not self.unexpected_eof:
-            Node('$', program)
-        return program
+        root = Node('root')
+        try:
+            self.transit(parent_node=root)
+            Node('$', root.children[0])
+        except:
+            pass
+        return root.children[0]
 
     def parse(self):
         """Generates Parse Tree and Syntax Errors"""
