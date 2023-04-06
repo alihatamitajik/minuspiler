@@ -30,13 +30,12 @@ class Parser:
     This parser is using Transition Diagram Model.
     """
 
-    def __init__(self, scanner: Scanner) -> None:
-        """
-        TODO: add logger to the parser
-        """
+    def __init__(self, scanner: Scanner, err=None, tree=None) -> None:
         self.scanner = scanner
         self.grammar = {key: Transition(val) for key, val in GRAMMAR.items()}
         self.unexpected_eof = False
+        self.syn_err = err if err else open('syntax_errors.txt', 'w')
+        self.tree = tree if tree else open('parse_tree.txt', 'w', -1, "utf-8")
 
     def step_lookahead(self):
         """Updates the lookahead
@@ -70,6 +69,9 @@ class Parser:
         Adds a epsilon in the tree without moving lookahead"""
         Node('epsilon', parent_node)
 
+    def log_syntax_error(self, msg):
+        self.syn_err.write(f"#{self.lineno} : syntax error, {msg}\n")
+
     def transit(self, diagram='Program', parent_node=None):
         """Executes the transition of `diagram`
 
@@ -81,14 +83,14 @@ class Parser:
         while not rule:
             # PANIC!
             if self.terminal in trans.follow:
-                print(f"#{self.lineno} : missing {diagram}")
+                self.log_syntax_error(f"missing " + diagram)
                 return
             else:
                 if self.terminal == 'DOLOR':
-                    print(f"#{self.lineno} : Unexpected EOF")
+                    self.log_syntax_error("Unexpected EOF")
                     raise EOFError()
                 else:
-                    print(f"#{self.lineno} : illegal {self.terminal}")
+                    self.log_syntax_error("illegal " + self.terminal)
                     self.step_lookahead()
             rule = trans.get_rule(self.terminal)
         node = Node(diagram, parent_node)
@@ -102,7 +104,7 @@ class Parser:
                     if self.terminal == edge:
                         self.match(node)
                     else:  # if does not match missing something
-                        print(f"#{self.lineno} : missing {edge}")
+                        self.log_syntax_error(f"missing " + edge)
 
     def transit_program(self):
         """Program is constructed with "Program $"
@@ -121,6 +123,8 @@ class Parser:
         """Generates Parse Tree and Syntax Errors"""
         self.step_lookahead()
         tree = self.transit_program()
-        for pre, fill, node in RenderTree(tree):
-            print("%s%s" % (pre, node.name.strip()))
+        lines = [f"{pre}{node.name}" for pre, _, node in RenderTree(tree)]
+        self.tree.write("\n".join(lines))
+        if not self.syn_err.tell():
+            self.syn_err.write('There is no syntax error.')
         return tree
