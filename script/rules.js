@@ -26,7 +26,7 @@ module.exports = [
     {"H": [["=", "Expression"], ["G", "D",  "C"]]},
     {"Simple-expression-zegond": [["Additive-expression-zegond", "C"]]},
     {"Simple-expression-prime": [["Additive-expression-prime", "C"]]},
-    {"C": [["Relop", "Additive-expression"], [[null]]]},
+    {"C": [["Relop", "Additive-expression"], [null]]},
     {"Relop": [["<"], ["=="]]},
     {"Additive-expression": [["Term", "D"]]},
     {"Additive-expression-prime": [["Term-prime", "D"]]},
