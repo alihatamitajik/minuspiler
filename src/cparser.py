@@ -44,10 +44,9 @@ class Parser:
         the token itself and extracts the terminal string from it so it can be
         matched in with the rules in the grammar.
         """
-        self.lineno = self.scanner.buf.lineno
         lookahead = self.scanner.get_next_token()
         self.lookahead = lookahead
-        tt, lexim = lookahead
+        tt, lexim, self.lineno = lookahead
         if tt == TokenType.SYMBOL or tt == TokenType.KEYWORD:
             self.terminal = lexim
         else:
@@ -59,7 +58,7 @@ class Parser:
         Accepts a terminal, add it to the parse tree and get the next token as
         the lookahead.
         """
-        tt, lexim = self.lookahead
+        tt, lexim, _ = self.lookahead
         Node(f"({str(tt)}, {lexim})", parent_node)
         self.step_lookahead()
 

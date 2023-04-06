@@ -60,7 +60,7 @@ class Scanner:
                     continue
                 else:
                     self.logger.add_token(cur_line_no, str(lexim), tt)
-                    return tt, lexim
+                    return tt, lexim, cur_line_no
             else:
                 raise TypeError(f'Invalid Type [{tt}]')
 
@@ -90,8 +90,8 @@ class Scanner:
         """
         tt = TokenType.WHITESPACE
         while tt != TokenType.DOLOR:
-            tt, lexim = self.get_next_token()
-            yield tt, lexim
+            tt, lexim, lineno = self.get_next_token()
+            yield tt, lexim, lineno
 
     def iterate_ignore(self):
         """Iterates through tokens and ignore tokens
@@ -99,7 +99,7 @@ class Scanner:
         This function will iterate through the input file and build logger
         dictionaries only.
         """
-        for _, _ in self.iterator:
+        for _, _, _ in self.iterator:
             pass
 
     def dump_log(self, file_tokens=None, file_errors=None, file_symbols=None):
