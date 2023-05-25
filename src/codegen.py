@@ -8,6 +8,7 @@ class CodeGenerator:
         self.pb = [None] * 100
         self.i = 0
         self.ss = deque()
+        self.top = -1
 
     def _pop(self, n):
         """Pops n items from semantic stack"""
@@ -17,7 +18,3 @@ class CodeGenerator:
     def _push(self, x):
         """Pushes x into the stack"""
         self.ss.append(x)
-
-    def top(self, i=0):
-        """returns ss[top - i]"""
-        return self.ss[-1-i]
