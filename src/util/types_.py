@@ -89,34 +89,6 @@ class AutoTailState:
     callback = None
 
 
-class SymbolTable:
-    """Symbol Table"""
-
-    def __init__(self) -> None:
-        """TODO: dumb implementation of symbol table. it could be better it
-        think"""
-        self.table = {}
-        for key in sorted(KEYWORDS):
-            self.table[key] = None
-
-    def dump(self):
-        """dumps symbol table entries into a file
-
-        Args:
-            filename (str): name of the file that table will be dumped into.
-        """
-        raise NotImplementedError()
-
-    def install(self, id_key):
-        """insert id/keyword if it is not already in table
-
-        Args:
-            id_key (str): lexim of the symbol
-        """
-        if id_key not in self.table:
-            self.table[id_key] = None
-
-
 class classproperty(property):
     def __get__(self, cls, owner):
         return classmethod(self.fget).__get__(None, owner)()

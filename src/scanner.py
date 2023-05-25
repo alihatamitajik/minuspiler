@@ -1,6 +1,6 @@
 from util.buffer import AllBuffer
 from util.cminus import CMinus
-from util.types_ import TokenType, ErrorType, KEYWORDS, SymbolTable, SIGMA
+from util.types_ import TokenType, ErrorType, KEYWORDS, SIGMA
 from typing import Tuple
 from util.logger import Logger
 
@@ -19,7 +19,6 @@ class Scanner:
             self.buf = AllBuffer(file=file)
         else:
             self.buf = AllBuffer()
-        self.symbol_table = SymbolTable()
         self.logger = Logger()
 
     def get_token(self) -> Tuple[TokenType, str]:
@@ -35,8 +34,6 @@ class Scanner:
             if tok == TokenType.ID:
                 if lexim in KEYWORDS:
                     tok = TokenType.KEYWORD
-                else:
-                    self.symbol_table.install(lexim)
             return tok, lexim
         except ValueError as e:
             return self.panic(e)
@@ -103,5 +100,5 @@ class Scanner:
             pass
 
     def dump_log(self, file_tokens=None, file_errors=None, file_symbols=None):
-        self.logger.create_log(self.symbol_table.table,
+        self.logger.create_log({},
                                file_tokens, file_errors, file_symbols)
