@@ -2,6 +2,7 @@ from util.cminus import GRAMMAR
 from scanner import Scanner
 from anytree import Node, RenderTree
 from util.types_ import TokenType
+from codegen import CodeGenerator
 
 
 class Rule:
@@ -36,6 +37,7 @@ class Parser:
         self.unexpected_eof = False
         self.syn_err = err if err else open('syntax_errors.txt', 'w')
         self.tree = tree if tree else open('parse_tree.txt', 'w', -1, "utf-8")
+        self.cg = CodeGenerator(self.scanner.symbol_table)
 
     def step_lookahead(self):
         """Updates the lookahead
@@ -93,11 +95,18 @@ class Parser:
                     self.step_lookahead()
             rule = trans.get_rule(self.terminal)
         node = Node(diagram, parent_node)
-        if not rule.rule[0]:  # epsilon move
+
+        if None in rule.rule:  # epsilon move
             self.match_epsilon(node)
+            # do actions
+            for edge in rule.rule:
+                if edge:
+                    self.cg.code_gen(edge, self.lookahead)
         else:
             for i, edge in enumerate(rule.rule):
-                if edge in self.grammar:  # if edge is a production rule
+                if edge[0] == '#':  # if we have action
+                    self.cg.code_gen(edge, self.lookahead)
+                elif edge in self.grammar:  # if edge is a production rule
                     self.transit(edge, node)
                 else:  # if edge is a terminal
                     if self.terminal == edge:

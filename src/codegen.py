@@ -18,3 +18,21 @@ class CodeGenerator:
     def _push(self, x):
         """Pushes x into the stack"""
         self.ss.append(x)
+
+    def code_gen(self, action, lookahead):
+        getattr(self, "action_" + action[1:])(lookahead)
+
+    def action_ptype(self, lookahead):
+        pass
+
+    def action_pid(self, lookahead):
+        pass
+
+    def action_pnum(self, lookahead):
+        pass
+
+    def action_var(self, lookahead):
+        pass
+
+    def action_arr(self, lookahead):
+        pass

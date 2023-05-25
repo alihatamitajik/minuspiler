@@ -160,7 +160,7 @@ GRAMMAR = json.loads(
         "first":["int","void"],
         "follow":["(",";","[",",",")"],
         "rules":[
-            {"rule":["Type-specifier","ID"],"prediction":["int","void"]}]},
+            {"rule":["#ptype", "Type-specifier", "#pid", "ID"],"prediction":["int","void"]}]},
     "Declaration-prime":{
         "first":["(",";","["],
         "follow":["int","void","DOLOR","{","break",";","if","repeat","return","ID","(","NUM","}"],
@@ -171,8 +171,8 @@ GRAMMAR = json.loads(
         "first":[";","["],
         "follow":["int","void","DOLOR","{","break",";","if","repeat","return","ID","(","NUM","}"],
         "rules":[
-            {"rule":[";"],"prediction":[";"]},
-            {"rule":["[","NUM","]",";"],"prediction":["["]}]},
+            {"rule":[";", "#var"],"prediction":[";"]},
+            {"rule":["[", "#pnum", "NUM","]",";", "#arr"],"prediction":["["]}]},
     "Fun-declaration-prime":{
         "first":["("],
         "follow":["int","void","DOLOR","{","break",";","if","repeat","return","ID","(","NUM","}"],
