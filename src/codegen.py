@@ -16,6 +16,22 @@ class CodeGenerator:
         self.data_p = 100
         self.temp_p = 500
         self.arg_count = deque()
+        self.semantic_errors = []
+
+    def generate_output(self, file):
+        if not self.semantic_errors:
+            for i, inst in enumerate(self.pb):
+                if not inst:
+                    break
+                file.write(f"{i}\t{inst}\n")
+        else:
+            file.write("The output code has not been generated.")
+
+    def generate_errors(self, file):
+        if not self.semantic_errors:
+            file.write("The input program is semantically correct.\n")
+        else:
+            pass  # TODO: write semantic errors
 
     def pop(self, n):
         """Pops n items from semantic stack"""

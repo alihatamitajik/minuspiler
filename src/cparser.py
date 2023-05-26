@@ -31,12 +31,15 @@ class Parser:
     This parser is using Transition Diagram Model.
     """
 
-    def __init__(self, scanner: Scanner, err=None, tree=None) -> None:
+    def __init__(self, scanner: Scanner, err=None, tree=None, output=None, semantic_err=None) -> None:
         self.scanner = scanner
         self.grammar = {key: Transition(val) for key, val in GRAMMAR.items()}
         self.unexpected_eof = False
         self.syn_err = err if err else open('syntax_errors.txt', 'w')
         self.tree = tree if tree else open('parse_tree.txt', 'w', -1, "utf-8")
+        self.semantic_err = semantic_err if semantic_err else open(
+            "semantic_errors.txt", "w")
+        self.output = output if output else open("output.txt", "w")
         self.cg = CodeGenerator()
 
     def step_lookahead(self):
@@ -135,4 +138,6 @@ class Parser:
         self.tree.write("\n".join(lines))
         if not self.syn_err.tell():
             self.syn_err.write('There is no syntax error.')
+        self.cg.generate_output(self.output)
+        self.cg.generate_errors(self.semantic_err)
         return tree
