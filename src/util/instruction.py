@@ -62,6 +62,9 @@ class Instruction:
     def __str__(self) -> str:
         return f'({self.op.name}, {self.a}, {self.b}, {self.c})'
 
+    def __repr__(self) -> str:
+        return self.__str__()
+
 
 def generate_address(addr: str):
     """Create address object from strings like 500, @500 and #500"""
@@ -84,7 +87,7 @@ def generate_instruction(op, a, b, c):
 
 # Instruction functions
 ADD = partial(generate_instruction, Op.ADD)
-MULT = partial(generate_instruction, Op.MULT)
+MUL = partial(generate_instruction, Op.MULT)
 SUB = partial(generate_instruction, Op.SUB)
 EQ = partial(generate_instruction, Op.EQ)
 LT = partial(generate_instruction, Op.LT)

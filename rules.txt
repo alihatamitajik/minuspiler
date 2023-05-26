@@ -13,7 +13,7 @@ Param-prime -> [ ] | EPSILON
 Compound-stmt -> #scopeup { Declaration-list Statement-list } #scopedown
 Statement-list -> Statement Statement-list | EPSILON
 Statement -> Expression-stmt | Compound-stmt | Selection-stmt | Iteration-stmt | Return-stmt
-Expression-stmt -> Expression ; | break ; | ;
+Expression-stmt -> Expression #pexpr ; | break ; | ;
 Selection-stmt -> if ( Expression ) Statement else Statement
 Iteration-stmt -> repeat Statement until ( Expression )
 Return-stmt -> return Return-stmt-prime
@@ -23,22 +23,22 @@ B -> = Expression #assign | [ Expression ] #index H | Simple-expression-prime
 H -> = Expression #assign | G D C
 Simple-expression-zegond -> Additive-expression-zegond C
 Simple-expression-prime -> Additive-expression-prime C
-C -> Relop Additive-expression | EPSILON
+C -> #pop Relop Additive-expression | EPSILON
 Relop -> < | ==
 Additive-expression -> Term D
 Additive-expression-prime -> Term-prime D
 Additive-expression-zegond -> Term-zegond D
-D -> Addop Term D | EPSILON
+D -> #pop Addop Term D | EPSILON
 Addop -> + | -
 Term -> Factor G
 Term-prime -> Factor-prime G
 Term-zegond -> Factor-zegond G
-G -> * Factor G | EPSILON
-Factor -> ( Expression ) | ID Var-call-prime | NUM
+G -> #pop * Factor G | EPSILON
+Factor -> ( Expression ) | ID Var-call-prime | #pnum NUM
 Var-call-prime -> ( Args ) | Var-prime
 Var-prime -> [ Expression ] | EPSILON
 Factor-prime -> ( Args ) | EPSILON
-Factor-zegond -> ( Expression ) | NUM
+Factor-zegond -> ( Expression ) | #pnum NUM
 Args -> Arg-list | EPSILON
 Arg-list -> Expression Arg-list-prime
 Arg-list-prime -> , Expression Arg-list-prime | EPSILON

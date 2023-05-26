@@ -1,6 +1,7 @@
 from collections import deque
 from util.symbol import SymbolTable
 from util.types_ import Lookahead
+from util.instruction import ADD, MUL, SUB, EQ, LT, ASSIGN, JPF, JP, PRINT
 
 
 class CodeGenerator:
@@ -52,7 +53,7 @@ class CodeGenerator:
 
     def action_pnum(self, lookahead: Lookahead):
         """Pushes number in lookahead."""
-        self.push(int(lookahead.lexeme))
+        self.push(f"#{lookahead.lexeme}")
 
     def action_var(self, _):
         """Registers variable
@@ -63,7 +64,7 @@ class CodeGenerator:
         """
         self.symbol_table.install_var(self.ss[self.top],
                                       self.ss[self.top-1],
-                                      self.get_data())
+                                      str(self.get_data()))
         self.pop(2)
 
     def action_arr(self, _):
@@ -74,10 +75,10 @@ class CodeGenerator:
             - name
             - num (size of array)
         """
-        size = self.ss[self.top]
+        size = int(self.ss[self.top][1:])
         self.symbol_table.install_arr(self.ss[self.top-1],
                                       self.ss[self.top-2],
-                                      self.get_data(size),
+                                      str(self.get_data(size)),
                                       size)
         self.pop(3)
 
@@ -88,3 +89,15 @@ class CodeGenerator:
     def action_scope_down(self, _):
         """Remove top level scope from stack (its ids can't be used later)"""
         self.symbol_table.down_scope()
+
+    def action_assign(self, _):
+        """Assigns top of stack to the operand below it"""
+        val = self.ss[self.top]
+        self.pb[self.i] = ASSIGN(val, self.ss[self.top - 1])
+        self.i += 1
+        self.pop(2)
+        self.push(val)
+
+    def action_pexpr(self, _):
+        """Pop Expression from stack"""
+        self.pop(1)

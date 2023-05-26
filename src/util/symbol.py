@@ -37,7 +37,7 @@ class SymbolTable:
     def get_symbol_addr(self, id):
         scope = self.scope
         while scope:
-            if id in scope:
+            if id in scope["symbol"]:
                 return scope["symbol"][id].address
             scope = scope["up"]
         return KeyError(f"ID({id}) not declared")
