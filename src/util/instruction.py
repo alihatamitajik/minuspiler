@@ -95,3 +95,11 @@ ASSIGN = partial(generate_instruction, Op.ASSIGN, c=None)
 JPF = partial(generate_instruction, Op.JPF, c=None)
 JP = partial(generate_instruction, Op.JP, b=None, c=None)
 PRINT = partial(generate_instruction, Op.PRINT, b=None, c=None)
+
+operation = {
+    '+': ADD,
+    '*': MUL,
+    '-': SUB,
+    '==': EQ,
+    '<': LT
+}

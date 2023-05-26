@@ -2,6 +2,9 @@ from collections import deque
 from util.symbol import SymbolTable
 from util.types_ import Lookahead
 from util.instruction import ADD, MUL, SUB, EQ, LT, ASSIGN, JPF, JP, PRINT
+from util.instruction import operation
+
+TOP = -1
 
 
 class CodeGenerator:
@@ -10,7 +13,6 @@ class CodeGenerator:
         self.pb = [None] * 100
         self.i = 0
         self.ss = deque()
-        self.top = -1
         self.data_p = 100
         self.temp_p = 500
 
@@ -62,8 +64,8 @@ class CodeGenerator:
             - type
             - name
         """
-        self.symbol_table.install_var(self.ss[self.top],
-                                      self.ss[self.top-1],
+        self.symbol_table.install_var(self.ss[TOP],
+                                      self.ss[TOP-1],
                                       str(self.get_data()))
         self.pop(2)
 
@@ -75,9 +77,9 @@ class CodeGenerator:
             - name
             - num (size of array)
         """
-        size = int(self.ss[self.top][1:])
-        self.symbol_table.install_arr(self.ss[self.top-1],
-                                      self.ss[self.top-2],
+        size = int(self.ss[TOP][1:])
+        self.symbol_table.install_arr(self.ss[TOP-1],
+                                      self.ss[TOP-2],
                                       str(self.get_data(size)),
                                       size)
         self.pop(3)
@@ -92,8 +94,8 @@ class CodeGenerator:
 
     def action_assign(self, _):
         """Assigns top of stack to the operand below it"""
-        val = self.ss[self.top]
-        self.pb[self.i] = ASSIGN(val, self.ss[self.top - 1])
+        val = self.ss[TOP]
+        self.pb[self.i] = ASSIGN(val, self.ss[TOP - 1])
         self.i += 1
         self.pop(2)
         self.push(val)
@@ -101,3 +103,17 @@ class CodeGenerator:
     def action_pexpr(self, _):
         """Pop Expression from stack"""
         self.pop(1)
+
+    def action_calc(self, _):
+        """Calculates operation inside SS on operands in SS"""
+        t = self.get_temp()
+        self.pb[self.i] = operation[self.ss[TOP - 1]](
+            self.ss[TOP],
+            self.ss[TOP-2],
+            str(t))
+        self.pop(3)
+        self.push(str(t))
+
+    def action_pop(self, lookahead: Lookahead):
+        """Push operator into SS"""
+        self.push(lookahead.lexeme)

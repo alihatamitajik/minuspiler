@@ -23,18 +23,18 @@ B -> = Expression #assign | [ Expression ] #index H | Simple-expression-prime
 H -> = Expression #assign | G D C
 Simple-expression-zegond -> Additive-expression-zegond C
 Simple-expression-prime -> Additive-expression-prime C
-C -> #pop Relop Additive-expression | EPSILON
+C -> #pop Relop Additive-expression #calc | EPSILON
 Relop -> < | ==
 Additive-expression -> Term D
 Additive-expression-prime -> Term-prime D
 Additive-expression-zegond -> Term-zegond D
-D -> #pop Addop Term D | EPSILON
+D -> #pop Addop Term #calc D | EPSILON
 Addop -> + | -
 Term -> Factor G
 Term-prime -> Factor-prime G
 Term-zegond -> Factor-zegond G
-G -> #pop * Factor G | EPSILON
-Factor -> ( Expression ) | ID Var-call-prime | #pnum NUM
+G -> #pop * Factor #calc G | EPSILON
+Factor -> ( Expression ) | #pid ID Var-call-prime | #pnum NUM
 Var-call-prime -> ( Args ) | Var-prime
 Var-prime -> [ Expression ] | EPSILON
 Factor-prime -> ( Args ) | EPSILON

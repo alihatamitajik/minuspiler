@@ -288,7 +288,7 @@ GRAMMAR = json.loads(
         "first":[null,"<","=="],
         "follow":[";",")","]",","],
         "rules":[
-            {"rule":["Relop","Additive-expression"],"prediction":["<","=="]},
+            {"rule":["#pop", "Relop","Additive-expression", "#calc"],"prediction":["<","=="]},
             {"rule":[null],"prediction":[";",")","]",","]}]},
     "Relop":{
         "first":["<","=="],
@@ -315,7 +315,7 @@ GRAMMAR = json.loads(
         "first":[null,"+","-"],
         "follow":["<","==",";",")","]",","],
         "rules":[
-            {"rule":["Addop","Term","D"],"prediction":["+","-"]},
+            {"rule":["#pop", "Addop","Term","#calc","D"],"prediction":["+","-"]},
             {"rule":[null],"prediction":["<","==",";",")","]",","]}]},
     "Addop":{
         "first":["+","-"],
@@ -342,14 +342,14 @@ GRAMMAR = json.loads(
         "first":["*",null],
         "follow":["+","-","<","==",";",")","]",","],
         "rules":[
-            {"rule":["*","Factor","G"],"prediction":["*"]},
+            {"rule":["#pop", "*","Factor", "#calc", "G"],"prediction":["*"]},
             {"rule":[null],"prediction":["+","-","<","==",";",")","]",","]}]},
     "Factor":{
         "first":["(","ID","NUM"],
         "follow":["*","+","-",";",")","<","==","]",","],
         "rules":[
             {"rule":["(","Expression",")"],"prediction":["("]},
-            {"rule":["ID","Var-call-prime"],"prediction":["ID"]},
+            {"rule":["#pid", "ID","Var-call-prime"],"prediction":["ID"]},
             {"rule":["#pnum", "NUM"],"prediction":["NUM"]}]},
     "Var-call-prime":{
         "first":["(","[",null],
