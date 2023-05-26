@@ -1,10 +1,10 @@
 from collections import deque
-from util.types_ import SymbolTable
+from util.symbol import SymbolTable
 
 
 class CodeGenerator:
-    def __init__(self, symbol_table: SymbolTable) -> None:
-        self.symbol_table = symbol_table
+    def __init__(self) -> None:
+        self.symbol_table = SymbolTable()
         self.pb = [None] * 100
         self.i = 0
         self.ss = deque()

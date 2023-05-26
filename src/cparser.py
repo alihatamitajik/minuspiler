@@ -37,7 +37,7 @@ class Parser:
         self.unexpected_eof = False
         self.syn_err = err if err else open('syntax_errors.txt', 'w')
         self.tree = tree if tree else open('parse_tree.txt', 'w', -1, "utf-8")
-        self.cg = CodeGenerator(self.scanner.symbol_table)
+        self.cg = CodeGenerator()
 
     def step_lookahead(self):
         """Updates the lookahead
