@@ -13,10 +13,10 @@ class Symbol:
 
 class SymbolTable:
     def __init__(self) -> None:
-        self.scope = {"symbols": {}, "up": None}
+        self.scope = {"symbol": {}, "up": None}
 
     def check(self, id):
-        if id in self.scope["symbols"]:
+        if id in self.scope["symbol"]:
             raise KeyError(f"ID({id}) already declared in this scope")
 
     def install_var(self, id, type, address):

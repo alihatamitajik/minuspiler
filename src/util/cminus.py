@@ -160,7 +160,7 @@ GRAMMAR = json.loads(
         "first":["int","void"],
         "follow":["(",";","[",",",")"],
         "rules":[
-            {"rule":["#ptype", "Type-specifier", "#pid", "ID"],"prediction":["int","void"]}]},
+            {"rule":["#ptype", "Type-specifier", "#pname", "ID"],"prediction":["int","void"]}]},
     "Declaration-prime":{
         "first":["(",";","["],
         "follow":["int","void","DOLOR","{","break",";","if","repeat","return","ID","(","NUM","}"],

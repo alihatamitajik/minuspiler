@@ -120,11 +120,11 @@ class Parser:
         This rule is not in the set of rules but we can simulate this rule by
         adding a $ matching at the end of the transit"""
         root = Node('root')
-        try:
-            self.transit(parent_node=root)
-            Node('$', root.children[0])
-        except:
-            pass
+        # try:
+        self.transit(parent_node=root)
+        Node('$', root.children[0])
+        # except:
+        #     pass
         return root.children[0]
 
     def parse(self):

@@ -1,7 +1,7 @@
 Program -> Declaration-list
 Declaration-list -> Declaration Declaration-list | EPSILON
 Declaration -> Declaration-initial Declaration-prime
-Declaration-initial -> #ptype Type-specifier #pid ID
+Declaration-initial -> #ptype Type-specifier #pname ID
 Declaration-prime -> Fun-declaration-prime | Var-declaration-prime
 Var-declaration-prime -> #var ; | [ #pnum NUM ] #arr ;
 Fun-declaration-prime -> ( Params ) Compound-stmt

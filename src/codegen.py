@@ -1,5 +1,6 @@
 from collections import deque
 from util.symbol import SymbolTable
+from util.types_ import Lookahead
 
 
 class CodeGenerator:
@@ -9,30 +10,73 @@ class CodeGenerator:
         self.i = 0
         self.ss = deque()
         self.top = -1
+        self.data_p = 100
+        self.temp_p = 500
 
-    def _pop(self, n):
+    def pop(self, n):
         """Pops n items from semantic stack"""
         for _ in range(n):
             self.ss.pop()
 
-    def _push(self, x):
+    def push(self, x):
         """Pushes x into the stack"""
         self.ss.append(x)
 
     def code_gen(self, action, lookahead):
         getattr(self, "action_" + action[1:])(lookahead)
 
-    def action_ptype(self, lookahead):
-        pass
+    def get_data(self, size=1):
+        """returns address of data allocated in data block"""
+        addr = self.data_p
+        self.data_p += size * 4
+        return addr
 
-    def action_pid(self, lookahead):
-        pass
+    def get_temp(self):
+        self.temp_p += 4
+        return self.temp_p - 4
 
-    def action_pnum(self, lookahead):
-        pass
+    def action_ptype(self, lookahead: Lookahead):
+        """Pushes type in lookahead. This is separated from #pname because it
+        might be useful in the future and semantic analyzer (not sure)."""
+        self.push(lookahead.lexeme)
 
-    def action_var(self, lookahead):
-        pass
+    def action_pname(self, lookahead: Lookahead):
+        """Pushes id name. This is separated from #ptype because it might be 
+        useful in the future and semantic analyzer (not sure)."""
+        self.push(lookahead.lexeme)
 
-    def action_arr(self, lookahead):
-        pass
+    def action_pid(self, lookahead: Lookahead):
+        """Pushed address of current ID from symbol table"""
+        addr = self.symbol_table.get_symbol_addr(lookahead.lexeme)
+        self.push(addr)
+
+    def action_pnum(self, lookahead: Lookahead):
+        """Pushes number in lookahead."""
+        self.push(int(lookahead.lexeme))
+
+    def action_var(self, lookahead: Lookahead):
+        """Registers variable
+
+        And pops required data from semantic stack:
+            - type
+            - name
+        """
+        self.symbol_table.install_var(self.ss[self.top],
+                                      self.ss[self.top-1],
+                                      self.get_data())
+        self.pop(2)
+
+    def action_arr(self, lookahead: Lookahead):
+        """Registers array variable
+
+        And pops required data from semantic stack:
+            - type
+            - name
+            - num (size of array)
+        """
+        size = self.ss[self.top]
+        self.symbol_table.install_arr(self.ss[self.top-1],
+                                      self.ss[self.top-2],
+                                      self.get_data(size),
+                                      size)
+        self.pop(3)
