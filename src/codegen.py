@@ -15,6 +15,7 @@ class CodeGenerator:
         self.ss = deque()
         self.data_p = 100
         self.temp_p = 500
+        self.arg_count = deque()
 
     def pop(self, n):
         """Pops n items from semantic stack"""
@@ -50,7 +51,7 @@ class CodeGenerator:
 
     def action_pid(self, lookahead: Lookahead):
         """Pushed address of current ID from symbol table"""
-        addr = self.symbol_table.get_symbol_addr(lookahead.lexeme)
+        addr = self.symbol_table.get_symbol_addr(lookahead.lexeme).address
         self.push(addr)
 
     def action_pnum(self, lookahead: Lookahead):
@@ -111,9 +112,45 @@ class CodeGenerator:
             self.ss[TOP],
             self.ss[TOP-2],
             str(t))
+        self.i += 1
         self.pop(3)
         self.push(str(t))
 
     def action_pop(self, lookahead: Lookahead):
         """Push operator into SS"""
         self.push(lookahead.lexeme)
+
+    def action_call(self, _):
+        """Call the function inside SS with number of its arguments
+
+        NOTE: As the arguments are pushed inside the SS with Expression 
+        non-terminal we don't need to push them, but some action may be needed 
+        for semantic analysis in Args and arg related rules."""
+        num_arg = self.arg_count.pop()
+        symbol = self.symbol_table.get_symbol_by_addr(self.ss[TOP - num_arg])
+        if symbol.args == None:
+            raise ValueError(f"ID({symbol.lexeme}) is not a function")
+        if len(symbol.args) != num_arg:
+            raise TypeError(
+                f"Bad number of arguments ({num_arg}) for {symbol.lexeme}({', '.join(symbol.args)})")
+        if symbol.lexeme == 'output':
+            self.code_output()
+        else:
+            pass  # should be replaced with real function call in next Phase
+        self.pop(num_arg + 1)  # pop arguments id of func
+        # push return value (?)
+
+    def code_output(self):
+        self.pb[self.i] = PRINT(self.ss[TOP])
+        self.i += 1
+
+    def action_incarg(self, _):
+        """Increment number of arguments calling"""
+        self.arg_count[-1] += 1
+
+    def action_pcount(self, _):
+        """Pushes 0 as count of args
+
+        NOTE: I think having a queue to keep number of arguments will help us
+        to handle recursive and multiple function calls (i.e. f(g(), h(a))"""
+        self.arg_count.append(0)

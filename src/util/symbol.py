@@ -5,7 +5,7 @@ from enum import Enum
 @dataclass
 class Symbol:
     lexeme: str
-    address: int
+    address: str
     s_type: str
     size: int = 0
     args: list = None
@@ -13,7 +13,9 @@ class Symbol:
 
 class SymbolTable:
     def __init__(self) -> None:
-        self.scope = {"symbol": {}, "up": None}
+        self.scope = {
+            "symbol": {'output': Symbol('output', 'output', 'void', 0, ['int'])},
+            "up": None}
 
     def check(self, id):
         if id in self.scope["symbol"]:
@@ -38,9 +40,18 @@ class SymbolTable:
         scope = self.scope
         while scope:
             if id in scope["symbol"]:
-                return scope["symbol"][id].address
+                return scope["symbol"][id]
             scope = scope["up"]
         return KeyError(f"ID({id}) not declared")
+
+    def get_symbol_by_addr(self, addr):
+        scope = self.scope
+        while scope:
+            for symbol in scope["symbol"].values():
+                if symbol.address == addr:
+                    return symbol
+            scope = scope["up"]
+        raise ValueError(f"Address ({addr}) not registered")
 
     def up_scope(self):
         self.scope = {"symbol": {}, "up": self.scope}

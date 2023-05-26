@@ -37,8 +37,8 @@ G -> #pop * Factor #calc G | EPSILON
 Factor -> ( Expression ) | #pid ID Var-call-prime | #pnum NUM
 Var-call-prime -> ( Args ) | Var-prime
 Var-prime -> [ Expression ] | EPSILON
-Factor-prime -> ( Args ) | EPSILON
+Factor-prime -> #pcount ( Args ) #call | EPSILON
 Factor-zegond -> ( Expression ) | #pnum NUM
 Args -> Arg-list | EPSILON
-Arg-list -> Expression Arg-list-prime
-Arg-list-prime -> , Expression Arg-list-prime | EPSILON
+Arg-list -> Expression #incarg Arg-list-prime
+Arg-list-prime -> , Expression #incarg Arg-list-prime | EPSILON

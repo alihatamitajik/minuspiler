@@ -367,7 +367,7 @@ GRAMMAR = json.loads(
         "first":["(",null],
         "follow":["*","+","-","<","==",";",")","]",","],
         "rules":[
-            {"rule":["(","Args",")"],"prediction":["("]},
+            {"rule":["#pcount", "(","Args",")", "#call"],"prediction":["("]},
             {"rule":[null],"prediction":["*","+","-","<","==",";",")","]",","]}]},
     "Factor-zegond":{
         "first":["(","NUM"],
@@ -385,12 +385,12 @@ GRAMMAR = json.loads(
         "first":["ID","(","NUM"],
         "follow":[")"],
         "rules":[
-            {"rule":["Expression","Arg-list-prime"],"prediction":["ID","(","NUM"]}]},
+            {"rule":["Expression", "#incarg","Arg-list-prime"],"prediction":["ID","(","NUM"]}]},
     "Arg-list-prime":{
         "first":[",",null],
         "follow":[")"],
         "rules":[
-            {"rule":[",","Expression","Arg-list-prime"],"prediction":[","]},
+            {"rule":[",","Expression", "#incarg","Arg-list-prime"],"prediction":[","]},
             {"rule":[null],"prediction":[")"]}]}}
     """
 )
