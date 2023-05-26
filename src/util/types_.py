@@ -2,7 +2,7 @@ import string
 from typing import Tuple, List
 from enum import Enum
 from dataclasses import dataclass
-
+from collections import namedtuple
 
 # Keywords
 KEYWORDS = ['if', 'else', 'void', 'int', 'repeat', 'break', 'until', 'return']
@@ -92,3 +92,6 @@ class AutoTailState:
 class classproperty(property):
     def __get__(self, cls, owner):
         return classmethod(self.fget).__get__(None, owner)()
+
+
+Lookahead = namedtuple("Lookahead", ["tt", "lexeme", "lineno"])

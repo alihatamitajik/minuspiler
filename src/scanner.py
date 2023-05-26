@@ -1,6 +1,6 @@
 from util.buffer import AllBuffer
 from util.cminus import CMinus
-from util.types_ import TokenType, ErrorType, KEYWORDS, SIGMA
+from util.types_ import TokenType, ErrorType, KEYWORDS, SIGMA, Lookahead
 from typing import Tuple
 from util.logger import Logger
 
@@ -57,7 +57,7 @@ class Scanner:
                     continue
                 else:
                     self.logger.add_token(cur_line_no, str(lexim), tt)
-                    return tt, lexim, cur_line_no
+                    return Lookahead(tt, lexim, cur_line_no)
             else:
                 raise TypeError(f'Invalid Type [{tt}]')
 
