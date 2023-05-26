@@ -125,8 +125,8 @@ class CodeGenerator:
         """Calculates operation inside SS on operands in SS"""
         t = self.get_temp()
         self.pb[self.i] = operation[self.ss[TOP - 1]](
-            self.ss[TOP],
             self.ss[TOP-2],
+            self.ss[TOP],
             str(t))
         self.i += 1
         self.pop(3)
@@ -154,7 +154,8 @@ class CodeGenerator:
         else:
             pass  # should be replaced with real function call in next Phase
         self.pop(num_arg + 1)  # pop arguments id of func
-        # push return value (?)
+        # push return value (?) TODO: this is temp for return value of output
+        self.push(None)
 
     def code_output(self):
         self.pb[self.i] = PRINT(self.ss[TOP])
