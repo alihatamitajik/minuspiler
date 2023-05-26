@@ -54,7 +54,7 @@ class CodeGenerator:
         """Pushes number in lookahead."""
         self.push(int(lookahead.lexeme))
 
-    def action_var(self, lookahead: Lookahead):
+    def action_var(self, _):
         """Registers variable
 
         And pops required data from semantic stack:
@@ -66,7 +66,7 @@ class CodeGenerator:
                                       self.get_data())
         self.pop(2)
 
-    def action_arr(self, lookahead: Lookahead):
+    def action_arr(self, _):
         """Registers array variable
 
         And pops required data from semantic stack:
@@ -80,3 +80,11 @@ class CodeGenerator:
                                       self.get_data(size),
                                       size)
         self.pop(3)
+
+    def action_scope_up(self, _):
+        """Add one scope to the symbol table"""
+        self.symbol_table.up_scope()
+
+    def action_scope_down(self, _):
+        """Remove top level scope from stack (its ids can't be used later)"""
+        self.symbol_table.down_scope()

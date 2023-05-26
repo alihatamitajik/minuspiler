@@ -43,7 +43,7 @@ class SymbolTable:
         return KeyError(f"ID({id}) not declared")
 
     def up_scope(self):
-        self.scope = {"symbols": {}, "up": self.scope}
+        self.scope = {"symbol": {}, "up": self.scope}
 
     def down_scope(self):
         self.scope = self.scope["up"]

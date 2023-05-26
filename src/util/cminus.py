@@ -211,7 +211,7 @@ GRAMMAR = json.loads(
         "first":["{"],
         "follow":["int","void","DOLOR","{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
         "rules":[
-            {"rule":["{","Declaration-list","Statement-list","}"],"prediction":["{"]}]},
+            {"rule":["#scope_up" ,"{","Declaration-list","Statement-list", "#scope_down", "}"],"prediction":["{"]}]},
     "Statement-list":{
         "first":[null,"{","break",";","if","repeat","return","ID","(","NUM"],
         "follow":["}"],
