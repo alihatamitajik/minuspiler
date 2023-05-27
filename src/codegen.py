@@ -171,3 +171,15 @@ class CodeGenerator:
         NOTE: I think having a queue to keep number of arguments will help us
         to handle recursive and multiple function calls (i.e. f(g(), h(a))"""
         self.arg_count.append(0)
+
+    def action_index(self, _):
+        """Index an array in a temp var
+
+        This uses indirect addressing mode to create address of the index in
+        runtime and access it."""
+        t = self.get_temp()
+        self.pb[self.i] = MUL(self.ss[TOP], "#4", str(t))
+        self.pb[self.i + 1] = ADD(str(t), f"#{self.ss[TOP-1]}", str(t))
+        self.i += 2
+        self.pop(2)
+        self.push(f"@{t}")

@@ -266,13 +266,13 @@ GRAMMAR = json.loads(
         "follow":[";",")","]",","],
         "rules":[
             {"rule":["=","Expression", "#assign"],"prediction":["="]},
-            {"rule":["[","Expression","]","H"],"prediction":["["]},
+            {"rule":["[","Expression","]", "#index","H"],"prediction":["["]},
             {"rule":["Simple-expression-prime"],"prediction":["(","*","+","-","<","==",";",")","]",","]}]},
     "H":{
         "first":["=","*",null,"+","-","<","=="],
         "follow":[";",")","]",","],
         "rules":[
-            {"rule":["=","Expression"],"prediction":["="]},
+            {"rule":["=","Expression", "#assign"],"prediction":["="]},
             {"rule":["G","D","C"],"prediction":["*","+","-","<","==",";",")","]",","]}]},
     "Simple-expression-zegond":{
         "first":["(","NUM"],
@@ -361,7 +361,7 @@ GRAMMAR = json.loads(
         "first":["[",null],
         "follow":["*","+","-",";",")","<","==","]",","],
         "rules":[
-            {"rule":["[","Expression","]"],"prediction":["["]},
+            {"rule":["[","Expression","]", "#index"],"prediction":["["]},
             {"rule":[null],"prediction":["*","+","-",";",")","<","==","]",","]}]},
     "Factor-prime":{
         "first":["(",null],
