@@ -232,9 +232,8 @@ class CodeGenerator:
         * expr result
         * saved space
         """
-        self.pb[self.i] = JPF(self.ss[TOP], str(self.i + 2))
-        self.pb[self.i + 1] = JP(str(self.ss[TOP-1]))
-        self.i += 2
+        self.pb[self.i] = JPF(self.ss[TOP], str(self.ss[TOP-1]))
+        self.i += 1
         self.pop(2)
 
     def action_pbp(self, _):
