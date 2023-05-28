@@ -183,3 +183,21 @@ class CodeGenerator:
         self.i += 2
         self.pop(2)
         self.push(f"@{t}")
+
+    def action_save(self, _):
+        """Saves a space in PB and pushes i into SS"""
+        self.push(self.i)
+        self.i += 1
+
+    def action_jpf_save(self, _):
+        """JPF and Save
+        
+        Saves an space in the PB and fill previous saved space with JPF"""
+        self.pb[self.ss[TOP]] = JPF(self.ss[TOP-1], str(self.i + 1))
+        self.pop(2)
+        self.action_save(_)
+
+    def action_jp(self, _):
+        """JP in saved space to current line"""
+        self.pb[self.ss[TOP]] = JP(str(self.i))
+        self.pop(1)
