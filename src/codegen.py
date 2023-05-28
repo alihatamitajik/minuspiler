@@ -16,6 +16,7 @@ class CodeGenerator:
         self.data_p = 100
         self.temp_p = 500
         self.arg_count = deque()
+        self.break_stack = deque()
         self.semantic_errors = []
 
     def generate_output(self, file):
@@ -191,13 +192,67 @@ class CodeGenerator:
 
     def action_jpf_save(self, _):
         """JPF and Save
-        
-        Saves an space in the PB and fill previous saved space with JPF"""
+
+        Saves an space in the PB and fill previous saved space with JPF:
+
+        STACK:
+
+        *
+        *
+        * saved space
+        * expr result
+        """
         self.pb[self.ss[TOP]] = JPF(self.ss[TOP-1], str(self.i + 1))
         self.pop(2)
         self.action_save(_)
 
     def action_jp(self, _):
-        """JP in saved space to current line"""
+        """JP in saved space to current line
+
+        STACK:
+
+        *
+        *
+        * saved space
+        """
         self.pb[self.ss[TOP]] = JP(str(self.i))
         self.pop(1)
+
+    def action_label(self, _):
+        """label current line"""
+        self.push(self.i)
+
+    def action_jpf(self, _):
+        """JPf to label with expr in SS
+
+        STACK:
+
+        *
+        *
+        * expr result
+        * saved space
+        """
+        self.pb[self.i] = JPF(self.ss[TOP], str(self.i + 2))
+        self.pb[self.i + 1] = JP(str(self.ss[TOP-1]))
+        self.i += 2
+        self.pop(2)
+
+    def action_pbp(self, _):
+        """Push breakpoint
+
+        pushes a temp variable that should be in break_stack so break use it
+        as a jump point."""
+        t = self.get_temp()
+        self.break_stack.append(t)
+
+    def action_until(self, _):
+        """fill the saved space with address of break point and pop breakpoint
+        from stack."""
+        self.pb[self.ss[TOP]] = ASSIGN(
+            f"#{self.i}", str(self.break_stack.pop()))
+        self.pop(1)
+
+    def action_break(self, _):
+        """break expression action"""
+        self.pb[self.i] = JP(f"@{self.break_stack[TOP]}")
+        self.i += 1

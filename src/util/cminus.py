@@ -232,7 +232,7 @@ GRAMMAR = json.loads(
         "follow":["{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
         "rules":[
             {"rule":["Expression", "#pexpr",";"],"prediction":["ID","(","NUM"]},
-            {"rule":["break",";"],"prediction":["break"]},
+            {"rule":["break","#break",";"],"prediction":["break"]},
             {"rule":[";"],"prediction":[";"]}]},
     "Selection-stmt":{
         "first":["if"],
@@ -243,7 +243,7 @@ GRAMMAR = json.loads(
         "first":["repeat"],
         "follow":["{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
         "rules":[
-            {"rule":["repeat","Statement","until","(","Expression",")"],"prediction":["repeat"]}]},
+            {"rule":["repeat", "#save","#pbp","#label","Statement","until","(","Expression",")", "#jpf", "#until"],"prediction":["repeat"]}]},
     "Return-stmt":{
         "first":["return"],
         "follow":["{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
