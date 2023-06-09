@@ -4,20 +4,20 @@ Declaration -> Declaration-initial Declaration-prime
 Declaration-initial -> #ptype Type-specifier #pname ID
 Declaration-prime -> Fun-declaration-prime | Var-declaration-prime
 Var-declaration-prime -> #var ; | [ #pnum NUM ] #arr ;
-Fun-declaration-prime -> ( Params ) Compound-stmt
+Fun-declaration-prime -> #func #scope_up ( Params ) Compound-stmt #scope_down #end_func
 Type-specifier -> int | void
-Params -> int ID Param-prime Param-list | void
+Params -> #ptype int #pname ID Param-prime Param-list | void
 Param-list -> , Param Param-list | EPSILON
 Param -> Declaration-initial Param-prime
-Param-prime -> [ ] | EPSILON
-Compound-stmt -> #scopeup { Declaration-list Statement-list } #scopedown
+Param-prime -> #install_param_arr [ ] | #install_param_int EPSILON
+Compound-stmt ->  { Declaration-list Statement-list }
 Statement-list -> Statement Statement-list | EPSILON
-Statement -> Expression-stmt | Compound-stmt | Selection-stmt | Iteration-stmt | Return-stmt
-Expression-stmt -> Expression #pexpr ; | break ; | ;
+Statement -> Expression-stmt | #scope_up Compound-stmt #scope_down | Selection-stmt | Iteration-stmt | Return-stmt
+Expression-stmt -> Expression #pexpr ; | break #break ; | ;
 Selection-stmt -> if ( Expression ) #save Statement #jpf_save else Statement #jp
 Iteration-stmt -> repeat #save #pbp #label Statement until ( Expression ) #jpf #until
 Return-stmt -> return Return-stmt-prime
-Return-stmt-prime -> ; | Expression ;
+Return-stmt-prime -> #return_void ; | Expression #return_value;
 Expression -> Simple-expression-zegond | #pid ID B
 B -> = Expression #assign | [ Expression ] #index H | Simple-expression-prime
 H -> = Expression #assign | G D C
@@ -35,10 +35,10 @@ Term-prime -> Factor-prime G
 Term-zegond -> Factor-zegond G
 G -> #pop * Factor #calc G | EPSILON
 Factor -> ( Expression ) | #pid ID Var-call-prime | #pnum NUM
-Var-call-prime -> ( Args ) | Var-prime
+Var-call-prime -> #pcount( Args ) #call| Var-prime
 Var-prime -> [ Expression ] #index | EPSILON
 Factor-prime -> #pcount ( Args ) #call | EPSILON
 Factor-zegond -> ( Expression ) | #pnum NUM
 Args -> Arg-list | EPSILON
-Arg-list -> Expression #incarg Arg-list-prime
-Arg-list-prime -> , Expression #incarg Arg-list-prime | EPSILON
+Arg-list ->  #incarg Expression Arg-list-prime
+Arg-list-prime -> ,  #incarg Expression Arg-list-prime | EPSILON

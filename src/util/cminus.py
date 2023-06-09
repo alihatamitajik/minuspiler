@@ -171,13 +171,13 @@ GRAMMAR = json.loads(
         "first":[";","["],
         "follow":["int","void","DOLOR","{","break",";","if","repeat","return","ID","(","NUM","}"],
         "rules":[
-            {"rule":[";", "#var"],"prediction":[";"]},
+            {"rule":["#var", ";"],"prediction":[";"]},
             {"rule":["[", "#pnum", "NUM","]",";", "#arr"],"prediction":["["]}]},
     "Fun-declaration-prime":{
         "first":["("],
         "follow":["int","void","DOLOR","{","break",";","if","repeat","return","ID","(","NUM","}"],
         "rules":[
-            {"rule":["(","Params",")","Compound-stmt"],"prediction":["("]}]},
+            {"rule":["#func", "#scope_up", "(", "Params" ,")", "Compound-stmt", "#scope_down", "#end_func"],"prediction":["("]}]},
     "Type-specifier":{
         "first":["int","void"],
         "follow":["ID"],
@@ -188,7 +188,7 @@ GRAMMAR = json.loads(
         "first":["int","void"],
         "follow":[")"],
         "rules":[
-            {"rule":["int","ID","Param-prime","Param-list"],"prediction":["int"]},
+            {"rule":["#ptype", "int","#pname", "ID","Param-prime","Param-list"],"prediction":["int"]},
             {"rule":["void"],"prediction":["void"]}]},
     "Param-list":{
         "first":[",",null],
@@ -205,13 +205,13 @@ GRAMMAR = json.loads(
         "first":["[",null],
         "follow":[",",")"],
         "rules":[
-            {"rule":["[","]"],"prediction":["["]},
-            {"rule":[null],"prediction":[",",")"]}]},
+            {"rule":["#install_param_arr", "[","]"],"prediction":["["]},
+            {"rule":["#install_param_int", null],"prediction":[",",")"]}]},
     "Compound-stmt":{
         "first":["{"],
         "follow":["int","void","DOLOR","{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
         "rules":[
-            {"rule":["#scope_up" ,"{","Declaration-list","Statement-list", "#scope_down", "}"],"prediction":["{"]}]},
+            {"rule":["{","Declaration-list","Statement-list", "}"],"prediction":["{"]}]},
     "Statement-list":{
         "first":[null,"{","break",";","if","repeat","return","ID","(","NUM"],
         "follow":["}"],
@@ -223,7 +223,7 @@ GRAMMAR = json.loads(
         "follow":["{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
         "rules":[
             {"rule":["Expression-stmt"],"prediction":["break",";","ID","(","NUM"]},
-            {"rule":["Compound-stmt"],"prediction":["{"]},
+            {"rule":["#scope_up", "Compound-stmt", "#scope_down"],"prediction":["{"]},
             {"rule":["Selection-stmt"],"prediction":["if"]},
             {"rule":["Iteration-stmt"],"prediction":["repeat"]},
             {"rule":["Return-stmt"],"prediction":["return"]}]},
@@ -253,8 +253,8 @@ GRAMMAR = json.loads(
         "first":[";","ID","(","NUM"],
         "follow":["{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
         "rules":[
-            {"rule":[";"],"prediction":[";"]},
-            {"rule":["Expression",";"],"prediction":["ID","(","NUM"]}]},
+            {"rule":["#return_void", ";"],"prediction":[";"]},
+            {"rule":["Expression","#return_value",";"],"prediction":["ID","(","NUM"]}]},
     "Expression":{
         "first":["ID","(","NUM"],
         "follow":[";",")","]",","],
@@ -355,7 +355,7 @@ GRAMMAR = json.loads(
         "first":["(","[",null],
         "follow":["*","+","-",";",")","<","==","]",","],
         "rules":[
-            {"rule":["(","Args",")"],"prediction":["("]},
+            {"rule":["#pcount", "(","Args",")", "#call"],"prediction":["("]},
             {"rule":["Var-prime"],"prediction":["[","*","+","-",";",")","<","==","]",","]}]},
     "Var-prime":{
         "first":["[",null],
@@ -385,12 +385,12 @@ GRAMMAR = json.loads(
         "first":["ID","(","NUM"],
         "follow":[")"],
         "rules":[
-            {"rule":["Expression", "#incarg","Arg-list-prime"],"prediction":["ID","(","NUM"]}]},
+            {"rule":["#incarg", "Expression","Arg-list-prime"],"prediction":["ID","(","NUM"]}]},
     "Arg-list-prime":{
         "first":[",",null],
         "follow":[")"],
         "rules":[
-            {"rule":[",","Expression", "#incarg","Arg-list-prime"],"prediction":[","]},
+            {"rule":[",", "#incarg", "Expression","Arg-list-prime"],"prediction":[","]},
             {"rule":[null],"prediction":[")"]}]}}
     """
 )

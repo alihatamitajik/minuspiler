@@ -19,7 +19,7 @@ class SymbolTable:
 
     def check(self, id):
         if id in self.scope["symbol"]:
-            raise KeyError(f"ID({id}) already declared in this scope")
+            return KeyError(f"ID({id}) already declared in this scope")
 
     def install_var(self, id, type, address):
         self.check(id)
@@ -34,7 +34,9 @@ class SymbolTable:
         self.scope["symbol"][id] = Symbol(id, address, type, 0, [])
 
     def add_arg_func(self, id, arg):
-        self.scope["symbol"][id].args.append(arg)
+        self.get_symbol_addr(id).args.append(arg)
+        # print(id, ":", self.get_symbol_addr(id).args)
+
 
     def get_symbol_addr(self, id):
         scope = self.scope
@@ -42,7 +44,7 @@ class SymbolTable:
             if id in scope["symbol"]:
                 return scope["symbol"][id]
             scope = scope["up"]
-        return KeyError(f"ID({id}) not declared")
+        return KeyError(f"\'{id}\' is not defined.")
 
     def get_symbol_by_addr(self, addr):
         scope = self.scope
@@ -51,7 +53,7 @@ class SymbolTable:
                 if symbol.address == addr:
                     return symbol
             scope = scope["up"]
-        raise ValueError(f"Address ({addr}) not registered")
+        return KeyError(f"Address ({addr}) not registered")
 
     def up_scope(self):
         self.scope = {"symbol": {}, "up": self.scope}
