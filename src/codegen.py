@@ -170,9 +170,9 @@ class CodeGenerator:
         elif self.ss[TOP].isdecimal():
             if 3000 >= int(self.ss[TOP]) >= 500:
                 op2_type = 'int'
-            elif 500 > int(self.ss[TOP]) and op2_symbol.size != 0:
+            elif 500 > int(self.ss[TOP]) and int(op2_symbol.size) != 0:
                 op2_type = 'int[]'
-            elif 500 > int(self.ss[TOP]) and op2_symbol.size == 0:
+            elif 500 > int(self.ss[TOP]) and int(op2_symbol.size) == 0:
                 op2_type = 'int'
 
 
@@ -184,9 +184,9 @@ class CodeGenerator:
         elif self.ss[TOP - 2].isdecimal():
             if 3000 >= int(self.ss[TOP - 2]) >= 500:
                 op1_type = 'int'
-            elif 500 > int(self.ss[TOP - 2]) and op1_symbol.size != 0:
+            elif 500 > int(self.ss[TOP - 2]) and int(op1_symbol.size) != 0:
                 op1_type = 'int[]'
-            elif 500 > int(self.ss[TOP - 2]) and op1_symbol.size == 0:
+            elif 500 > int(self.ss[TOP - 2]) and int(op1_symbol.size) == 0:
                 op1_type = 'int'
 
         elif op1_symbol.__class__ != KeyError:
@@ -264,6 +264,10 @@ class CodeGenerator:
                 counter = 0
                 for arg_type in true_args:
                     arg2 = self.symbol_table.get_symbol_by_addr(call_args[counter])
+
+
+
+
                     if call_args[counter].isdecimal() and 3000> int(call_args[counter]) >=500 and arg_type == "int":
                         counter += 1
                         continue
@@ -294,11 +298,11 @@ class CodeGenerator:
                         self.semantic_errors.append(
                             f"#{lookahead.lineno}: Semantic Error! {error_string} is not defined.")
                         break
-                    elif arg_type == 'int[]' and arg2.s_type == 'int' and arg2.size > 0 :
+                    elif arg_type == 'int[]' and arg2.s_type == 'int' and int(arg2.size) > 0 :
                         counter += 1
                         continue
 
-                    elif arg_type == 'int' and arg2.s_type == 'int' and arg2.size > 0 :
+                    elif arg_type == 'int' and arg2.s_type == 'int' and int(arg2.size) > 0 :
                         self.has_error = True
 
                         self.semantic_errors.append(
