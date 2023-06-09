@@ -317,6 +317,7 @@ class CodeGenerator:
                         self.semantic_errors.append(
                             f"#{lookahead.lineno}: Semantic Error! Mismatch in type of argument {counter + 1} of \'{symbol.lexeme}\'. Expected '{arg_type}' but got '{arg2_type}' instead.")
                         break
+                    counter += 1
 
         self.pop(num_arg + 1)  # pop arguments id of func
         # push return value (?) TODO: this is temp for return value of output
