@@ -21,6 +21,7 @@ class CodeGenerator:
         self.semantic_errors = []
         self.has_error = False
         self.in_repeat = False
+        self.funcs = deque()
 
     def generate_output(self, file):
         if not self.semantic_errors:
@@ -79,7 +80,7 @@ class CodeGenerator:
         self.push(lookahead.lexeme)
 
     def action_pname(self, lookahead: Lookahead):
-        """Pushes id name. This is separated from #ptype because it might be 
+        """Pushes id name. This is separated from #ptype because it might be
         useful in the future and semantic analyzer (not sure)."""
         self.push(lookahead.lexeme)
 
@@ -90,7 +91,7 @@ class CodeGenerator:
             self.has_error = True
             error_string = str(symbol).replace("\"", "")
             self.semantic_errors.append(f"#{lookahead.lineno}: Semantic Error! {error_string}")
-            self.push("500")
+            self.push("5000")
             return
         addr = symbol.address
         self.push(addr)
@@ -111,8 +112,8 @@ class CodeGenerator:
             self.has_error = True
             self.semantic_errors.append(
                 f"#{lookahead.lineno}: Semantic Error! Illegal type of void for \'{self.ss[TOP]}\'.")
-
-        self.symbol_table.install_var(self.ss[TOP],
+        else:
+            self.symbol_table.install_var(self.ss[TOP],
                                       self.ss[TOP - 1],
                                       str(self.get_data()))
         self.pop(2)
@@ -191,26 +192,26 @@ class CodeGenerator:
         elif op1_symbol.__class__ != KeyError:
             op1_type = op1_symbol.s_type
 
-        if op1_type is None:
+        if op1_type is None and self.ss[TOP -2] != '5000':
             self.has_error = True
             error_string = self.ss[TOP - 2].replace("\"", "")
             self.semantic_errors.append(
                 f"#{lookahead.lineno}: Semantic Error! {error_string} is not defined.")
 
-        elif op2_type is None:
+        elif op2_type is None and self.ss[TOP] != '5000':
             self.has_error = True
-            error_string = self.ss[TOP - 2].replace("\"", "")
+            error_string = self.ss[TOP].replace("\"", "")
             self.semantic_errors.append(
                 f"#{lookahead.lineno}: Semantic Error! {error_string} is not defined.")
 
 
-        elif op1_type != 'int':
+        elif op1_type != 'int' and self.ss[TOP-2] != '5000':
             self.has_error = True
             op1_type = op1_type if op1_type != 'int[]' else 'array'
 
             self.semantic_errors.append(
                 f"#{lookahead.lineno}: Semantic Error! Type mismatch in operands, Got {op1_type} instead of int.")
-        elif op2_type != 'int':
+        elif op2_type != 'int' and self.ss[TOP] != '5000' :
             self.has_error = True
             op2_type = op2_type if op2_type != 'int[]' else 'array'
 
@@ -233,31 +234,32 @@ class CodeGenerator:
     def action_call(self, lookahead: Lookahead):
         """Call the function inside SS with number of its arguments
 
-        NOTE: As the arguments are pushed inside the SS with Expression 
-        non-terminal we don't need to push them, but some action may be needed 
+        NOTE: As the arguments are pushed inside the SS with Expression
+        non-terminal we don't need to push them, but some action may be needed
         for semantic analysis in Args and arg related rules."""
         num_arg = self.arg_count.pop()
+        print(self.ss[TOP - num_arg])
+        symbol = self.symbol_table.get_symbol_by_addr(self.ss[TOP - num_arg ])
 
-        symbol = self.symbol_table.get_symbol_by_addr(self.ss[TOP - num_arg])
+        if symbol.__class__ == KeyError and self.ss[TOP - num_arg] != '5000' and self.ss[TOP - num_arg] != "output":
+            self.has_error = True
+            error_string = str(symbol).replace("\"", "")
+            self.semantic_errors.append(f"#{lookahead.lineno}: Semantic Error! {error_string} is not defined.")
 
-        if symbol.lexeme == 'output':
+        elif symbol.lexeme == 'output':
             self.code_output()
 
         else:
 
-            if symbol.__class__ == KeyError:
-                self.has_error = True
-                error_string = str(symbol).replace("\"", "")
-                self.semantic_errors.append(f"#{lookahead.lineno}: Semantic Error! {error_string}")
-
-            elif symbol.args is None or len(symbol.args) != num_arg:
+            if symbol.args is None or len(symbol.args) != num_arg:
                 self.has_error = True
 
                 self.semantic_errors.append(
                     f"#{lookahead.lineno}: Semantic Error! Mismatch in numbers of arguments of \'{symbol.lexeme}\'.")
 
             else:
-                call_args = [self.ss[TOP + i] for i in range(num_arg)]
+                call_args = [self.ss[TOP - i] for i in range(num_arg)]
+                call_args.reverse()
                 true_args = symbol.args
                 counter = 0
                 for arg_type in true_args:
@@ -285,6 +287,9 @@ class CodeGenerator:
                         self.semantic_errors.append(
                             f"#{lookahead.lineno}: Semantic Error! {error_string} is not defined.")
                         break
+                    elif arg_type == 'int[]' and arg2.s_type == 'int' and arg2.size > 0 :
+                        counter += 1
+                        continue
                     elif arg_type != arg2.s_type:
                         self.has_error = True
                         arg_type = arg_type if arg_type != 'int[]' else 'array'
@@ -297,10 +302,10 @@ class CodeGenerator:
         self.pop(num_arg + 1)  # pop arguments id of func
         # push return value (?) TODO: this is temp for return value of output
 
-        if symbol.s_type == 'int':
-            self.push("#500")
-        elif symbol.s_type == 'int[]':
-            self.push("@500")
+        if symbol.__class__ != KeyError and symbol.s_type == 'int':
+            self.push("#5000")
+        elif symbol.__class__ != KeyError and symbol.s_type == 'int[]':
+            self.push("@5000")
         else:
             self.push(None)
 
@@ -312,11 +317,11 @@ class CodeGenerator:
         """Increment number of arguments calling"""
         symbol = self.symbol_table.get_symbol_addr(lookahead.lexeme)
 
-        if symbol.__class__ == KeyError and not lookahead.lexeme.isdecimal():
-            self.has_error = True
-            error_string = str(symbol).replace("\"", "")
-            self.semantic_errors.append(f"#{lookahead.lineno}: Semantic Error! {error_string}")
-            return
+        # if symbol.__class__ == KeyError and not lookahead.lexeme.isdecimal():
+        #     self.has_error = True
+        #     error_string = str(symbol).replace("\"", "")
+        #     self.semantic_errors.append(f"#{lookahead.lineno}: Semantic Error! {error_string}")
+
         self.arg_count[-1] += 1
 
     def action_pcount(self, lookahead: Lookahead):
@@ -343,7 +348,7 @@ class CodeGenerator:
         self.push(self.i)
         self.i += 1
 
-    def action_jpf_save(self, _):
+    def action_jpf_save(self, lookahead: Lookahead):
         """JPF and Save
 
         Saves an space in the PB and fill previous saved space with JPF:
@@ -357,7 +362,7 @@ class CodeGenerator:
         """
         self.pb[self.ss[TOP]] = JPF(self.ss[TOP - 1], str(self.i + 1))
         self.pop(2)
-        self.action_save(_)
+        self.action_save(lookahead)
 
     def action_jp(self, _):
         """JP in saved space to current line
@@ -375,7 +380,7 @@ class CodeGenerator:
         """label current line"""
         self.push(self.i)
 
-    def action_jpf(self, _):
+    def action_jpf(self, lookahead: Lookahead):
         """JPf to label with expr in SS
 
         STACK:
@@ -421,6 +426,7 @@ class CodeGenerator:
         id = self.ss[TOP]
         self.pop(2)
         self.push(id)
+        self.funcs.append(id)
 
     def action_install_param_int(self, lookahead: Lookahead):
         self.symbol_table.install_var(self.ss[TOP], "int", str(self.get_data()))
@@ -433,11 +439,26 @@ class CodeGenerator:
         self.pop(2)
 
     def action_end_func(self, lookahead: Lookahead):
+        self.funcs.pop()
         pass
 
     def action_return_null(self, lookahead: Lookahead):
-        pass
+        id = self.funcs.pop()
+        self.funcs.append(id)
+
+        symbol = self.symbol_table.get_symbol_addr(id)
+
+        if symbol.s_type != "void":
+            self.has_error = True
+            error =  symbol.s_type if symbol.s_type != 'int[]' else 'array'
+            self.semantic_errors.append(
+                f"#{lookahead.lineno}: Semantic Error! Type mismatch in operands, Got void instead of {error}.")
+
 
     def action_return_value(self, lookahead: Lookahead):
-        result = self.ss[TOP]
+        id = self.funcs.pop()
+        self.funcs.append(id)
+        symbol = self.symbol_table.get_symbol_addr(id)
+        return_value = self.ss[TOP]
+        self.pop(1)
         pass
