@@ -238,7 +238,7 @@ class CodeGenerator:
         non-terminal we don't need to push them, but some action may be needed
         for semantic analysis in Args and arg related rules."""
         num_arg = self.arg_count.pop()
-        print(self.ss[TOP - num_arg])
+        # print(self.ss[TOP - num_arg])
         symbol = self.symbol_table.get_symbol_by_addr(self.ss[TOP - num_arg ])
 
         if symbol.__class__ == KeyError and self.ss[TOP - num_arg] != '5000' and self.ss[TOP - num_arg] != "output":
@@ -264,8 +264,15 @@ class CodeGenerator:
                 counter = 0
                 for arg_type in true_args:
                     arg2 = self.symbol_table.get_symbol_by_addr(call_args[counter])
-
-                    if call_args[counter][0] == "#" and arg_type == "int":
+                    if call_args[counter].isdecimal() and 3000> int(call_args[counter]) >=500 and arg_type == "int":
+                        counter += 1
+                        continue
+                    elif call_args[counter].isdecimal() and 3000>int(call_args[counter]) >=500 and arg_type == "int[]":
+                        self.has_error = True
+                        self.semantic_errors.append(
+                            f"#{lookahead.lineno}: Semantic Error! Mismatch in type of argument {counter + 1} of \'{symbol.lexeme}\'. Expected 'array' but got 'int' instead.")
+                        break
+                    elif call_args[counter][0] == "#" and arg_type == "int":
                         counter += 1
                         continue
                     elif call_args[counter][0] == "#" and arg_type == "int[]":
@@ -290,7 +297,15 @@ class CodeGenerator:
                     elif arg_type == 'int[]' and arg2.s_type == 'int' and arg2.size > 0 :
                         counter += 1
                         continue
-                    elif arg_type != arg2.s_type:
+
+                    elif arg_type == 'int' and arg2.s_type == 'int' and arg2.size > 0 :
+                        self.has_error = True
+
+                        self.semantic_errors.append(
+                            f"#{lookahead.lineno}: Semantic Error! Mismatch in type of argument {counter + 1} of \'{symbol.lexeme}\'. Expected 'int' but got 'array' instead.")
+                        break
+
+                    elif arg_type != arg2.s_type :
                         self.has_error = True
                         arg_type = arg_type if arg_type != 'int[]' else 'array'
                         arg2_type = arg2.s_type if arg2.s_type != 'int[]' else 'array'
