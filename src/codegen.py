@@ -311,7 +311,7 @@ class CodeGenerator:
                         arg2_type = arg2.s_type if arg2.s_type != 'int[]' else 'array'
 
                         self.semantic_errors.append(
-                            f"#{lookahead.lineno}: Semantic Error! Mismatch in type of argument {counter + 1} of \'{symbol.lexeme}\'. Expected {arg_type} but got {arg2_type} instead.")
+                            f"#{lookahead.lineno}: Semantic Error! Mismatch in type of argument {counter + 1} of \'{symbol.lexeme}\'. Expected '{arg_type}' but got '{arg2_type}' instead.")
                         break
 
         self.pop(num_arg + 1)  # pop arguments id of func
@@ -457,7 +457,7 @@ class CodeGenerator:
         self.funcs.pop()
         pass
 
-    def action_return_null(self, lookahead: Lookahead):
+    def action_return_void(self, lookahead: Lookahead):
         id = self.funcs.pop()
         self.funcs.append(id)
 
@@ -467,7 +467,7 @@ class CodeGenerator:
             self.has_error = True
             error =  symbol.s_type if symbol.s_type != 'int[]' else 'array'
             self.semantic_errors.append(
-                f"#{lookahead.lineno}: Semantic Error! Type mismatch in operands, Got void instead of {error}.")
+                f"#{lookahead.lineno}: Semantic Error! Type mismatch in operands, Got 'void' instead of '{error}'.")
 
 
     def action_return_value(self, lookahead: Lookahead):
