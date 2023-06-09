@@ -127,7 +127,7 @@ class CodeGenerator:
         """
         size = int(self.ss[TOP][1:])
         self.symbol_table.install_arr(self.ss[TOP - 1],
-                                      'int[]',
+                                      self.ss[TOP - 2],
                                       str(self.get_data(size)),
                                       size)
         self.pop(3)
@@ -165,19 +165,31 @@ class CodeGenerator:
 
         if self.ss[TOP][0] == "#" or self.ss[TOP][0] == "@":
             op2_type = 'int'
+
         elif self.ss[TOP].isdecimal():
-            op2_type = 'int'
+            if 3000 >= int(self.ss[TOP]) >= 500:
+                op2_type = 'int'
+            elif 500 > int(self.ss[TOP]) and op2_symbol.size != 0:
+                op2_type = 'int[]'
+            elif 500 > int(self.ss[TOP]) and op2_symbol.size == 0:
+                op2_type = 'int'
+
+
         elif op2_symbol.__class__ != KeyError:
             op2_type = op2_symbol.s_type
 
         if self.ss[TOP - 2][0] == "#" or self.ss[TOP - 2][0] == "@":
             op1_type = 'int'
-        elif self.ss[TOP-2].isdecimal():
-            op1_type = 'int'
+        elif self.ss[TOP - 2].isdecimal():
+            if 3000 >= int(self.ss[TOP - 2]) >= 500:
+                op1_type = 'int'
+            elif 500 > int(self.ss[TOP - 2]) and op1_symbol.size != 0:
+                op1_type = 'int[]'
+            elif 500 > int(self.ss[TOP - 2]) and op1_symbol.size == 0:
+                op1_type = 'int'
+
         elif op1_symbol.__class__ != KeyError:
             op1_type = op1_symbol.s_type
-
-
 
         if op1_type is None:
             self.has_error = True
@@ -191,12 +203,17 @@ class CodeGenerator:
             self.semantic_errors.append(
                 f"#{lookahead.lineno}: Semantic Error! {error_string} is not defined.")
 
+
         elif op1_type != 'int':
             self.has_error = True
+            op1_type = op1_type if op1_type != 'int[]' else 'array'
+
             self.semantic_errors.append(
                 f"#{lookahead.lineno}: Semantic Error! Type mismatch in operands, Got {op1_type} instead of int.")
         elif op2_type != 'int':
             self.has_error = True
+            op2_type = op2_type if op2_type != 'int[]' else 'array'
+
             self.semantic_errors.append(
                 f"#{lookahead.lineno}: Semantic Error! Type mismatch in operands, Got {op2_type} instead of int.")
 
@@ -205,11 +222,9 @@ class CodeGenerator:
                 self.ss[TOP - 2],
                 self.ss[TOP],
                 str(t))
-        self.i += 1
+            self.i += 1
         self.pop(3)
         self.push(str(t))
-
-
 
     def action_pop(self, lookahead: Lookahead):
         """Push operator into SS"""
@@ -253,10 +268,8 @@ class CodeGenerator:
                         continue
                     elif call_args[counter][0] == "#" and arg_type == "int[]":
                         self.has_error = True
-
                         self.semantic_errors.append(
                             f"#{lookahead.lineno}: Semantic Error! Mismatch in type of argument {counter + 1} of \'{symbol.lexeme}\'. Expected 'array' but got 'int' instead.")
-                        counter += 1
                         break
                     elif call_args[counter][0] == "@" and arg_type == "int[]":
                         counter += 1
@@ -265,27 +278,21 @@ class CodeGenerator:
                         self.has_error = True
                         self.semantic_errors.append(
                             f"#{lookahead.lineno}: Semantic Error! Mismatch in type of argument {counter + 1} of \'{symbol.lexeme}\'. Expected 'int' but got 'array' instead.")
-
-                        counter += 1
-                        continue
+                        break
                     elif arg2.__class__ == KeyError:
                         self.has_error = True
                         error_string = call_args[counter].replace("\"", "")
-
                         self.semantic_errors.append(
                             f"#{lookahead.lineno}: Semantic Error! {error_string} is not defined.")
                         break
                     elif arg_type != arg2.s_type:
                         self.has_error = True
-
                         arg_type = arg_type if arg_type != 'int[]' else 'array'
                         arg2_type = arg2.s_type if arg2.s_type != 'int[]' else 'array'
 
                         self.semantic_errors.append(
                             f"#{lookahead.lineno}: Semantic Error! Mismatch in type of argument {counter + 1} of \'{symbol.lexeme}\'. Expected {arg_type} but got {arg2_type} instead.")
-                        counter += 1
                         break
-
 
         self.pop(num_arg + 1)  # pop arguments id of func
         # push return value (?) TODO: this is temp for return value of output
@@ -305,12 +312,11 @@ class CodeGenerator:
         """Increment number of arguments calling"""
         symbol = self.symbol_table.get_symbol_addr(lookahead.lexeme)
 
-
         if symbol.__class__ == KeyError and not lookahead.lexeme.isdecimal():
             self.has_error = True
             error_string = str(symbol).replace("\"", "")
-
             self.semantic_errors.append(f"#{lookahead.lineno}: Semantic Error! {error_string}")
+            return
         self.arg_count[-1] += 1
 
     def action_pcount(self, lookahead: Lookahead):
@@ -404,8 +410,8 @@ class CodeGenerator:
         """break expression action"""
         if not self.in_repeat:
             self.has_error = True
-            self.semantic_errors.append(f"#{lookahead.lineno}: Semantic Error! No 'repeat ... until' found for 'break'.")
-            self.i += 1
+            self.semantic_errors.append(
+                f"#{lookahead.lineno}: Semantic Error! No 'repeat ... until' found for 'break'.")
             return
         self.pb[self.i] = JP(f"@{self.break_stack[TOP]}")
         self.i += 1
@@ -422,18 +428,16 @@ class CodeGenerator:
         self.pop(2)
 
     def action_install_param_arr(self, lookahead: Lookahead):
-        self.symbol_table.install_arr(self.ss[TOP], "int[]", str(self.get_data()), "500")  # edit
+        self.symbol_table.install_arr(self.ss[TOP], "int", str(self.get_data()), "500")  # edit
         self.symbol_table.add_arg_func(self.ss[TOP - 2], "int[]")
         self.pop(2)
 
     def action_end_func(self, lookahead: Lookahead):
-
         pass
 
-
     def action_return_null(self, lookahead: Lookahead):
-
         pass
 
     def action_return_value(self, lookahead: Lookahead):
+        result = self.ss[TOP]
         pass
