@@ -134,3 +134,6 @@ src/input*
 /lexical_errors.txt
 /symbol_table.txt
 /tokens.txt
+
+# Ignore Tester Exe
+/tester_windows.exe
