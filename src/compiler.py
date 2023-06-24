@@ -1,3 +1,5 @@
+#  Ali Hatami (98101385) - Fatemeh Alimoradi (9909358)
+
 import os
 
 from scanner import Scanner
