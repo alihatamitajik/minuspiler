@@ -3,6 +3,7 @@ void main(void) {
     int i;
     int j;
     int sum;
+    int bound;
     i = 1;
     j = 3;
     bound = 5;
