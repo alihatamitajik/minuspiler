@@ -13,8 +13,6 @@ class CodeGenerator:
         self.pb = [None] * 100
         self.i = 0
         self.ss = deque()
-        self.data_p = 100
-        self.temp_p = 500
         self.arg_count = deque()
         self.break_stack = deque()
         self.semantic_errors = []
@@ -48,13 +46,10 @@ class CodeGenerator:
 
     def get_data(self, size=1):
         """returns address of data allocated in data block"""
-        addr = self.data_p
-        self.data_p += size * 4
-        return addr
+        raise NotImplementedError("Should be handled inside symbol table")
 
     def get_temp(self):
-        self.temp_p += 4
-        return self.temp_p - 4
+        raise NotImplementedError("Should be connected to symbol table")
 
     def action_ptype(self, lookahead: Lookahead):
         """Pushes type in lookahead. This is separated from #pname because it
