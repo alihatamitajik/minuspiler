@@ -1,10 +1,5 @@
 from collections import deque
-from util.symbol import SymbolTable
-from util.types_ import Lookahead
-from util.instruction import ADD, MUL, SUB, EQ, LT, ASSIGN, JPF, JP, PRINT
-from util.instruction import operation
-from util.symbol import SymbolType
-from util.symbol import SemanticSymbol
+from util import *
 TOP = -1
 
 
