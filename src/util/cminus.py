@@ -211,7 +211,7 @@ GRAMMAR = json.loads(
         "first":["{"],
         "follow":["int","void","DOLOR","{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
         "rules":[
-            {"rule":["#scope_up" ,"{","Declaration-list","Statement-list", "#scope_down", "}"],"prediction":["{"]}]},
+            {"rule":["{","Declaration-list","Statement-list", "}"],"prediction":["{"]}]},
     "Statement-list":{
         "first":[null,"{","break",";","if","repeat","return","ID","(","NUM"],
         "follow":["}"],
@@ -223,7 +223,7 @@ GRAMMAR = json.loads(
         "follow":["{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
         "rules":[
             {"rule":["Expression-stmt"],"prediction":["break",";","ID","(","NUM"]},
-            {"rule":["Compound-stmt"],"prediction":["{"]},
+            {"rule":["#scope_up", "Compound-stmt", "#scope_down"],"prediction":["{"]},
             {"rule":["Selection-stmt"],"prediction":["if"]},
             {"rule":["Iteration-stmt"],"prediction":["repeat"]},
             {"rule":["Return-stmt"],"prediction":["return"]}]},
