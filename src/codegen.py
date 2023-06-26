@@ -17,6 +17,10 @@ class CodeGenerator:
         self.arg_count = deque()
         self.break_stack = deque()
         self.semantic_errors = []
+        self.TOP = 200
+        self.TOP_SP = 204
+        # save 5 temp for each address in instructions (so next address is 224)
+        # This value is used in symbol table init
 
     def generate_output(self, file):
         if not self.semantic_errors:
@@ -93,6 +97,21 @@ class CodeGenerator:
         symbol_type = SymbolType[self.ss[TOP-1].upper()]
         self.symbol_table.install_variable(self.ss[TOP], symbol_type)
         self.pop(2)
+
+    def action_func(self, _):
+        """Adds function to the symbol table
+
+        This also saves a space to offset the TOP after function ends
+        """
+        symbol_type = SymbolType[self.ss[TOP-1].upper()]
+        self.symbol_table.install_func(self.ss[TOP], symbol_type, self.i)
+        self.pop(2)
+        # TODO: save a place to push rest of AR into stack (only should
+        # add a number to TOP)
+
+    def action_func_end(self, _):
+        """Tells symbol table that current function is done"""
+        self.symbol_table.end_func()
 
     def action_arr(self, _):
         """Registers array variable

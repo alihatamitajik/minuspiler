@@ -212,7 +212,7 @@ class SymbolTable:
 
     """
 
-    def __init__(self, global_addr=152, stack_start=500) -> None:
+    def __init__(self, global_addr=224, stack_start=500) -> None:
         self.current_func = None
         self.global_last_addr = global_addr
         self.end_global = stack_start - 4

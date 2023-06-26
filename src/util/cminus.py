@@ -177,7 +177,7 @@ GRAMMAR = json.loads(
         "first":["("],
         "follow":["int","void","DOLOR","{","break",";","if","repeat","return","ID","(","NUM","}"],
         "rules":[
-            {"rule":["(","Params",")","Compound-stmt"],"prediction":["("]}]},
+            {"rule":["#func", "(","Params",")","Compound-stmt", "#func_end"],"prediction":["("]}]},
     "Type-specifier":{
         "first":["int","void"],
         "follow":["ID"],
