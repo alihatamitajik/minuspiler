@@ -287,6 +287,9 @@ class SymbolTable:
         else:
             return entry.ar
 
-    def get_temp(self, id):
+    def get_temp(self):
         assert self.current_func != None
         return self.current_func.get_temp()
+
+    def get_global_temp(self):
+        return SemanticSymbol(None, SymbolType.INT, self._allocate_global())

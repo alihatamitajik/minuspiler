@@ -12,8 +12,8 @@ class CodeGenerator:
         self.arg_count = deque()
         self.break_stack = deque()
         self.semantic_errors = []
-        self.TOP = 200
-        self.TOP_SP = 204
+        self.RT_TOP = 200
+        self.RT_TOP_SP = 204
         # save 5 temp for each address in instructions (so next address is 224)
         # This value is used in symbol table init
 
@@ -263,7 +263,12 @@ class CodeGenerator:
         * expr result
         * saved space
         """
-        self.pb[self.i] = JPF(self.ss[TOP], str(self.ss[TOP-1]))
+        self.pb[self.i] = JPF(self.ss[TOP], str(
+            self.ss[TOP-1]))  # DONNO HOW TO
+        # HANDLE CALCULATE THIS SS[TOP]
+        # IDEA : EVEN ASSIGN CONSTANTS TO A TEMP SO ALL OF EXPRESSION REFERENCES
+        # ARE TO A TEMP VARIABLE THAT SHOULD BE CALCULATED WITH A DEFINITE
+        # NUMBER OF CALCULATIONS
         self.i += 1
         self.pop(2)
 
@@ -272,7 +277,7 @@ class CodeGenerator:
 
         pushes a temp variable that should be in break_stack so break use it
         as a jump point."""
-        t = self.get_temp()
+        t = self.get_temp()  # global temp should be used (not recursive and is a simple address)
         self.break_stack.append(t)
 
     def action_until(self, _):
