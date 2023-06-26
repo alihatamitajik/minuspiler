@@ -3,7 +3,8 @@ from util.symbol import SymbolTable
 from util.types_ import Lookahead
 from util.instruction import ADD, MUL, SUB, EQ, LT, ASSIGN, JPF, JP, PRINT
 from util.instruction import operation
-
+from util.symbol import SymbolType
+from util.symbol import SemanticSymbol
 TOP = -1
 
 
@@ -41,6 +42,17 @@ class CodeGenerator:
         """Pushes x into the stack"""
         self.ss.append(x)
 
+    def runtime_push(self, x):
+        """Generates code for pushing x into the stack
+
+        This will assign x to the top of stack
+        """
+        pass
+
+    def runtime_pop(self, size):
+        """generate code to pop `size` element from runtime stack"""
+        pass
+
     def code_gen(self, action, lookahead):
         getattr(self, "action_" + action[1:])(lookahead)
 
@@ -63,12 +75,13 @@ class CodeGenerator:
 
     def action_pid(self, lookahead: Lookahead):
         """Pushed address of current ID from symbol table"""
-        addr = self.symbol_table.get_symbol_addr(lookahead.lexeme).address
-        self.push(addr)
+        symbol = self.symbol_table.get_by_id(lookahead.lexeme)
+        self.push(symbol)
 
     def action_pnum(self, lookahead: Lookahead):
         """Pushes number in lookahead."""
-        self.push(f"#{lookahead.lexeme}")
+        self.push(SemanticSymbol(None, SymbolType.INT,
+                  int(lookahead.lexeme), is_constant=True))
 
     def action_var(self, _):
         """Registers variable
@@ -77,9 +90,8 @@ class CodeGenerator:
             - type
             - name
         """
-        self.symbol_table.install_var(self.ss[TOP],
-                                      self.ss[TOP-1],
-                                      str(self.get_data()))
+        symbol_type = SymbolType[self.ss[TOP-1].upper()]
+        self.symbol_table.install_variable(self.ss[TOP], symbol_type)
         self.pop(2)
 
     def action_arr(self, _):
@@ -90,20 +102,18 @@ class CodeGenerator:
             - name
             - num (size of array)
         """
-        size = int(self.ss[TOP][1:])
-        self.symbol_table.install_arr(self.ss[TOP-1],
-                                      self.ss[TOP-2],
-                                      str(self.get_data(size)),
-                                      size)
+        size = self.ss[TOP].value
+        symbol_type = SymbolType["ARRAY_" + self.ss[TOP - 2].upper()]
+        self.symbol_table.install_array(self.ss[TOP-1], symbol_type, size)
         self.pop(3)
 
     def action_scope_up(self, _):
         """Add one scope to the symbol table"""
-        self.symbol_table.up_scope()
+        self.symbol_table.scope_up()
 
     def action_scope_down(self, _):
         """Remove top level scope from stack (its ids can't be used later)"""
-        self.symbol_table.down_scope()
+        self.symbol_table.scope_down()
 
     def action_assign(self, _):
         """Assigns top of stack to the operand below it"""
