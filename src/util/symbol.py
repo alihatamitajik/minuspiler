@@ -16,7 +16,10 @@ class SemanticSymbol:
     element of an array and it might not be used (I'm not sure at this moment).
     """
     name: str
+    typ: str
     value: int
+    args: list
+    is_function: bool
     is_global: bool
     is_constant: bool
     is_pointer: bool
@@ -42,4 +45,10 @@ class SymbolTable:
         pass
 
     def get_by_id(self, id):
+        pass
+
+    def scope_up(self, id):
+        pass
+
+    def scope_down(self, id):
         pass
