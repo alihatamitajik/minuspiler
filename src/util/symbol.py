@@ -213,10 +213,9 @@ class SymbolTable:
 
     """
 
-    def __init__(self, global_addr=224, stack_start=500) -> None:
+    def __init__(self, global_addr=300) -> None:
         self.current_func = None
         self.global_last_addr = global_addr
-        self.end_global = stack_start - 4
         self.table = dict()  # only global variables and functions
 
     def install_func(self, name, return_type, addr):
@@ -234,15 +233,30 @@ class SymbolTable:
         assert self.current_func != None
         self.current_func.add_arg(arg_name, arg_type)
 
+    def _allocate_global(self, size=1):
+        addr = self.global_last_addr
+        self.global_last_addr += size * 4
+        return addr
+
     def install_variable(self, name, type):
         if self.current_func == None:
-            pass
+            if name in self.table:
+                raise KeyError(
+                    f"ID({name}) previously defined in global scope")
+            addr = self._allocate_global()
+            symbol = VariableEntry(name, type, addr, True)
+            self.table[name] = symbol
         else:
             self.current_func.add_var(name, type)
 
     def install_array(self, name, type, size):
         if self.current_func == None:
-            pass
+            if name in self.table:
+                raise KeyError(
+                    f"ID({name}) previously defined in global scope")
+            addr = self._allocate_global(size)
+            symbol = ArrayEntry(name, type, addr, size, True)
+            self.table[name] = symbol
         else:
             self.current_func.add_arr(name, type, size)
 
