@@ -172,11 +172,8 @@ class FunctionEntry(SymbolEntry):
 
     def scope_down(self):
         last_scope = self.scopes["last_scope"]
-        if last_scope == None:
-            raise RuntimeError(
-                "Bad Action: Scope down without previous scope up")
-        else:
-            self.scopes = last_scope
+        assert last_scope != None
+        self.scopes = last_scope
 
     def get_by_id(self, id):
         scope = self.scopes
@@ -221,32 +218,60 @@ class SymbolTable:
         self.end_global = stack_start - 4
         self.table = dict()  # only global variables and functions
 
-    def install_func(self, name, return_type):
-        pass
+    def install_func(self, name, return_type, addr):
+        assert self.current_func == None  # sanity check
+        if name in self.table:
+            raise KeyError(f"ID({name}) previously defined in global scope")
+        symbol = FunctionEntry(name, return_type, addr)
+        self.table[name] = symbol
+        self.current_func = symbol
 
     def end_func(self):
-        pass
+        self.current_func = None
 
-    def add_arg_to_func(self, name):
-        pass
+    def add_arg_to_func(self, arg_name, arg_type):
+        assert self.current_func != None
+        self.current_func.add_arg(arg_name, arg_type)
 
     def install_variable(self, name, type):
-        pass
+        if self.current_func == None:
+            pass
+        else:
+            self.current_func.add_var(name, type)
 
     def install_array(self, name, type, size):
-        pass
+        if self.current_func == None:
+            pass
+        else:
+            self.current_func.add_arr(name, type, size)
 
     def get_by_id(self, id):
-        pass
+        try:
+            return self.current_func.get_by_id(id)
+        except:
+            entry = self.table.get(id, None)
+            if entry:
+                return entry.semantic
+            else:
+                raise KeyError(f"ID({id}) not declared.")
 
-    def scope_up(self, id):
-        pass
+    def scope_up(self):
+        assert self.current_func != None
+        self.current_func.scope_up()
 
-    def scope_down(self, id):
-        pass
+    def scope_down(self):
+        assert self.current_func != None
+        self.current_func.scope_down()
 
     def get_activation_record(self, id):
-        pass
+        entry = self.table.get(id, None)
+        if not entry:
+            raise KeyError(f"ID({id}) not declared.")
+        elif entry is not FunctionEntry:
+            raise TypeError(f"ID({id}) is not a function.")
+        else:
+            return entry.ar
 
     def get_temp(self, id):
-        pass
+        assert self.current_func != None
+        return self.current_func.get_temp()
