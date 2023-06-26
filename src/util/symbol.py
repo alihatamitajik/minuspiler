@@ -7,7 +7,8 @@ class SymbolType(Enum):
     INT = 1
     ARRAY_VOID = 2
     ARRAY_INT = 3
-    POINTER = 5
+    POINTER_VOID = 5
+    POINTER_INT = 6
 
 
 @dataclass

@@ -126,6 +126,18 @@ class CodeGenerator:
         self.symbol_table.install_array(self.ss[TOP-1], symbol_type, size)
         self.pop(3)
 
+    def action_par_ptr(self, _):
+        """Adds pointer parameter to the function"""
+        symbol_type = SymbolType["POINTER_" + self.ss[TOP - 1].upper()]
+        self.symbol_table.add_arg_to_func(self.ss[TOP], symbol_type)
+        self.pop(2)
+
+    def action_par_var(self, _):
+        """Adds variable parameter to the function"""
+        symbol_type = SymbolType[self.ss[TOP - 1].upper()]
+        self.symbol_table.add_arg_to_func(self.ss[TOP], symbol_type)
+        self.pop(2)
+
     def action_scope_up(self, _):
         """Add one scope to the symbol table"""
         self.symbol_table.scope_up()

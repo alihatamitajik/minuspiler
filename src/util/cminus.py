@@ -188,7 +188,7 @@ GRAMMAR = json.loads(
         "first":["int","void"],
         "follow":[")"],
         "rules":[
-            {"rule":["int","ID","Param-prime","Param-list"],"prediction":["int"]},
+            {"rule":["#ptype", "int", "#pname", "ID","Param-prime","Param-list"],"prediction":["int"]},
             {"rule":["void"],"prediction":["void"]}]},
     "Param-list":{
         "first":[",",null],
@@ -205,8 +205,8 @@ GRAMMAR = json.loads(
         "first":["[",null],
         "follow":[",",")"],
         "rules":[
-            {"rule":["[","]"],"prediction":["["]},
-            {"rule":[null],"prediction":[",",")"]}]},
+            {"rule":["[","]", "#par_ptr"],"prediction":["["]},
+            {"rule":[null, "#par_var"],"prediction":[",",")"]}]},
     "Compound-stmt":{
         "first":["{"],
         "follow":["int","void","DOLOR","{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
