@@ -350,12 +350,16 @@ class CodeGenerator:
         STACK:
 
         *
-        *
-        * saved space
+        * saved space i + 1 (actual JPF)
+        * saved space i (evaluate expr temp)
         * expr result
         """
-        self.pb[self.ss[TOP]] = JPF(self.ss[TOP-1], str(self.i + 1))
-        self.pop(2)
+        eval_space = self.ss[TOP - 1]
+        expr = self.ss[TOP-2]
+        ct, add = self.symbol2ct(eval_space, expr)
+        assert add == 1
+        self.pb[self.ss[TOP]] = JPF(ct, str(self.i + 1))
+        self.pop(3)
         self.action_save(_)
 
     def action_jp(self, _):
@@ -384,12 +388,9 @@ class CodeGenerator:
         * expr result
         * saved space
         """
-        self.pb[self.i] = JPF(self.ss[TOP], str(
-            self.ss[TOP-1]))  # DONNO HOW TO
-        # HANDLE CALCULATE THIS SS[TOP]
-        # IDEA : EVEN ASSIGN CONSTANTS TO A TEMP SO ALL OF EXPRESSION REFERENCES
-        # ARE TO A TEMP VARIABLE THAT SHOULD BE CALCULATED WITH A DEFINITE
-        # NUMBER OF CALCULATIONS
+        ct, add = self.symbol2ct(self.i, self.ss[TOP])
+        self.i += add
+        self.pb[self.i] = JPF(ct, str(self.ss[TOP-1]))
         self.i += 1
         self.pop(2)
 
