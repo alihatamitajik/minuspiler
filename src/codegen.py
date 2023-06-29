@@ -124,7 +124,7 @@ class CodeGenerator:
         """Tells symbol table that current function is done"""
         ar = self.symbol_table.get_current_ar()
         # Back Patch Caller start routine
-        self.pb[self.pop()] = ADD(f"#{ar.size}", f"{self.SP}", f"{self.SP}")
+        self.pb[self.ss[TOP]] = ADD(f"#{ar.size}", f"{self.SP}", f"{self.SP}")
         # Back Patch Return Points
         for rp in self.current_function_return_points:
             self.pb[rp] = JP(f"{self.i}")
@@ -139,6 +139,7 @@ class CodeGenerator:
         self.pb[self.i + 4] = JP(f'@{ct}')
         self.i += 5
         self.symbol_table.end_func()
+        self.pop(1)
 
     def action_arr(self, _):
         """Registers array variable
@@ -350,12 +351,27 @@ class CodeGenerator:
         self.pop(2)
 
     def action_constant(self, lookahead):
+        """Assigns num constant to a new temp"""
         num = lookahead.lexeme
         t = self.symbol_table.get_temp()
         ct, adds = self.symbol2ct(self.i, t)
         self.i += adds
         self.pb[self.i] = ASSIGN("#" + num, ct)
         self.push(t)
+
+    def action_tempid(self, _):
+        """Assigns PID that is in the semantic stack to a new temp"""
+        id = self.ss[TOP]
+        if id.is_global:
+            self.pop()
+            t = self.symbol_table.get_temp()
+            ct, adds = self.symbol2ct(self.i, t)
+            self.i += adds
+            # This does not add anything but I used it for more coherence
+            ct2, adds = self.symbol2ct(self.i, id)
+            self.i += adds
+            self.pb[self.i] = ASSIGN(ct2, ct)
+            self.push(t)
 
     def action_pbp(self, _):
         """Push breakpoint

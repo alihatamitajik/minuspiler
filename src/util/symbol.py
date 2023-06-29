@@ -9,6 +9,7 @@ class SymbolType(Enum):
     ARRAY_INT = 3
     POINTER_VOID = 5
     POINTER_INT = 6
+    INDEXED = 7  # Special to tell the compiler to @(@(value))
 
 
 @dataclass

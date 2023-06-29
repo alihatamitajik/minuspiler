@@ -350,7 +350,7 @@ GRAMMAR = json.loads(
         "rules":[
             {"rule":["(","Expression",")"],"prediction":["("]},
             {"rule":["#pid", "ID","Var-call-prime"],"prediction":["ID"]},
-            {"rule":["#pnum", "NUM"],"prediction":["NUM"]}]},
+            {"rule":["#constant", "NUM"],"prediction":["NUM"]}]},
     "Var-call-prime":{
         "first":["(","[",null],
         "follow":["*","+","-",";",")","<","==","]",","],
@@ -362,7 +362,7 @@ GRAMMAR = json.loads(
         "follow":["*","+","-",";",")","<","==","]",","],
         "rules":[
             {"rule":["[","Expression","]", "#index"],"prediction":["["]},
-            {"rule":[null],"prediction":["*","+","-",";",")","<","==","]",","]}]},
+            {"rule":[null, "#tempid"],"prediction":["*","+","-",";",")","<","==","]",","]}]},
     "Factor-prime":{
         "first":["(",null],
         "follow":["*","+","-","<","==",";",")","]",","],
@@ -374,7 +374,7 @@ GRAMMAR = json.loads(
         "follow":["*","+","-","<","==",";",")","]",","],
         "rules":[
             {"rule":["(","Expression",")"],"prediction":["("]},
-            {"rule":["#pnum", "NUM"],"prediction":["NUM"]}]},
+            {"rule":["#constant", "NUM"],"prediction":["NUM"]}]},
     "Args":{
         "first":[null,"ID","(","NUM"],
         "follow":[")"],
