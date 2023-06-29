@@ -335,7 +335,7 @@ class CodeGenerator:
         rv = None
         if func.type == SymbolType.INT:
             rv = self.symbol_table.get_temp()
-            ct_rv, add = self.symbol2ct(self.i, t)
+            ct_rv, add = self.symbol2ct(self.i, rv)
             self.i += add
             self.pb[self.i] = ASSIGN(f"@{self.SP}", ct_rv)
             self.i += 1
