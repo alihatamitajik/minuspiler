@@ -187,14 +187,24 @@ class CodeGenerator:
 
     def action_calc(self, _):
         """Calculates operation inside SS on operands in SS"""
-        t = self.get_temp()
+
+        # Its assumed that semantic checks has been done before this comment
+        # And two operands are integers and result will be a new temp from
+        # symbol table
+        t = self.symbol_table.get_temp()
+        res_ct, adds = self.symbol2ct(self.i, t)
+        self.i += adds
+        op1_ct, adds = self.symbol2ct(self.i, self.ss[TOP-2])
+        self.i += adds
+        op2_ct, adds = self.symbol2ct(self.i, self.ss[TOP])
+        self.i += adds
         self.pb[self.i] = operation[self.ss[TOP - 1]](
-            self.ss[TOP-2],
-            self.ss[TOP],
-            str(t))
+            op1_ct,
+            op2_ct,
+            res_ct)
         self.i += 1
         self.pop(3)
-        self.push(str(t))
+        self.push(t)
 
     def action_pop(self, lookahead: Lookahead):
         """Push operator into SS"""
@@ -226,7 +236,7 @@ class CodeGenerator:
         of AR. Return statements will be generated later"""
         ct, addition = self.symbol2ct(self.i, self.ss.pop())
         self.i += addition
-        self.pb[self.i] = ASSIGN(ct, f"@{self.CF}") 
+        self.pb[self.i] = ASSIGN(ct, f"@{self.CF}")
         self.i += 1
 
     def action_return(self, _):
