@@ -368,7 +368,7 @@ GRAMMAR = json.loads(
         "follow":["*","+","-","<","==",";",")","]",","],
         "rules":[
             {"rule":["#pcount", "(","Args",")", "#call"],"prediction":["("]},
-            {"rule":[null],"prediction":["*","+","-","<","==",";",")","]",","]}]},
+            {"rule":[null, "#2temp"],"prediction":["*","+","-","<","==",";",")","]",","]}]},
     "Factor-zegond":{
         "first":["(","NUM"],
         "follow":["*","+","-","<","==",";",")","]",","],

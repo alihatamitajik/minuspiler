@@ -125,6 +125,7 @@ class VariableEntry(SymbolEntry):
     def __init__(self, name, type, addr, is_global=False) -> None:
         super().__init__(name, type, addr, is_global)
 
+    @property
     def semantic(self):
         return SemanticSymbol(self.name, self.type, self.addr,
                               is_global=self.is_global)
@@ -135,9 +136,11 @@ class ArrayEntry(SymbolEntry):
         super().__init__(name, type, addr, is_global)
         self.size = size
 
+    @property
     def is_array(self):
         return True
 
+    @property
     def semantic(self):
         return SemanticSymbol(self.name, self.type, self.addr,
                               is_global=self.is_global)
@@ -184,7 +187,7 @@ class FunctionEntry(SymbolEntry):
     def get_by_id(self, id):
         scope = self.scopes
         while scope:
-            entry = scope.get(id, None)
+            entry = scope["entries"].get(id, None)
             if entry:
                 return entry.semantic
             else:
@@ -198,6 +201,7 @@ class FunctionEntry(SymbolEntry):
     def is_func(self):
         return True
 
+    @property
     def semantic(self):
         return SemanticSymbol(self.name,
                               self.type,
@@ -222,7 +226,9 @@ class SymbolTable:
     def __init__(self, global_addr=300) -> None:
         self.current_func = None
         self.global_last_addr = global_addr
-        self.table = dict()  # only global variables and functions
+        output = FunctionEntry('output', SymbolType.VOID, 0)
+        output.add_arg('x', SymbolType.INT)
+        self.table = {'output': output}
 
     def install_func(self, name, return_type, addr):
         assert self.current_func == None  # sanity check

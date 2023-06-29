@@ -3,21 +3,22 @@ from util import *
 TOP = -1
 
 VOID_RETURN = SemanticSymbol("VOID RETURN", SymbolType.VOID, 4)
-START_STACK = 500
+START_STACK = 1000
+START_CONVERSION_TEMP = 612
 
 
 class CodeGenerator:
     def __init__(self) -> None:
-        self.symbol_table = SymbolTable()
-        self.pb = [None] * 200
+        self.symbol_table = SymbolTable(752)
+        self.pb = [None] * 600
         self.i = 0
         self.ss = deque()
         self.arg_count = deque()
         self.break_stack = deque()
         self.semantic_errors = []
-        self.CF = 200
-        self.SP = 204
-        self.temp = 208
+        self.CF = 604
+        self.SP = 608
+        self.temp = START_CONVERSION_TEMP
         self.current_function_return_points = []
         # save 5 temp for each address in instructions (so next address is 224)
         # This value is used in symbol table init
@@ -47,7 +48,7 @@ class CodeGenerator:
         self.ss.append(x)
 
     def code_gen(self, action, lookahead):
-        self.temp = 208  # reset conversion temp
+        self.temp = START_CONVERSION_TEMP  # reset conversion temp
         getattr(self, "action_" + action[1:])(lookahead)
 
     def get_conversion_temp(self):
@@ -139,8 +140,9 @@ class CodeGenerator:
         self.pb[self.i + 2] = ASSIGN(f'@{ct}', f'{self.CF}')
         # Jump to Return Address
         self.pb[self.i + 3] = ADD(f"#{ar.ra}", f"{self.SP}", f"{ct}")
-        self.pb[self.i + 4] = JP(f'@{ct}')
-        self.i += 5
+        self.pb[self.i + 4] = ASSIGN(f"@{ct}", f"{ct}")
+        self.pb[self.i + 5] = JP(f'@{ct}')
+        self.i += 6
         self.symbol_table.end_func()
         self.pop(1)
 
@@ -180,7 +182,11 @@ class CodeGenerator:
     def action_assign(self, _):
         """Assigns top of stack to the operand below it"""
         val = self.ss[TOP]
-        self.pb[self.i] = ASSIGN(val, self.ss[TOP - 1])
+        ct1, add = self.symbol2ct(self.i, val)
+        self.i += add
+        ct2, add = self.symbol2ct(self.i, self.ss[TOP - 1])
+        self.i += add
+        self.pb[self.i] = ASSIGN(ct1, ct2)
         self.i += 1
         self.pop(2)
         self.push(val)
@@ -255,7 +261,7 @@ class CodeGenerator:
         self.i += 1
 
     def push_int_arg(self, arg, ct_rt):
-        ct_arg, add = self.symbol2ct(arg, self.i)
+        ct_arg, add = self.symbol2ct(self.i, arg)
         self.i += add
         self.pb[self.i] = ASSIGN(ct_arg, f"@{ct_rt}")
         self.i += 1
@@ -292,14 +298,15 @@ class CodeGenerator:
         NOTE: This should push to rt stack without changing sp itself.
         """
         num_args = len(arg_types)
-        args = self.ss[TOP - num_args:]
-        for i, arg, type in enumerate(zip(args, arg_types)):
+        args = [self.ss[TOP - i] for i in range(num_args)]
+        args.reverse()
+        for i, (arg, type) in enumerate(zip(args, arg_types)):
             ct_rt = self.get_conversion_temp()
             self.pb[self.i] = ADD(f"{self.SP}", f"#{16 + i * 4}", f"{ct_rt}")
             self.i += 1
-            if type == SymbolType.INT:
+            if type.type == SymbolType.INT:
                 self.push_int_arg(arg, ct_rt)
-            elif type == SymbolType.POINTER_INT:
+            elif type.type == SymbolType.POINTER_INT:
                 self.push_pointer_arg(arg, ct_rt)
             else:
                 pass  # semantic error (we cannot have any other types)
@@ -321,13 +328,13 @@ class CodeGenerator:
         func = self.ss[TOP - num_arg]
         arg_types = func.args
         if func.name == 'output':
-            self.generate_output()  # this also should push return value to ss
+            self.code_output()  # this also should push return value to ss
             return
         self.push_arguments(arg_types)
         ct = self.get_conversion_temp()
         # Push return address
         self.pb[self.i] = ADD(f"{self.SP}", f"#{4}", f"{ct}")
-        self.pb[self.i + 1] = ASSIGN(f"{self.i + 3}", f"@{ct}")
+        self.pb[self.i + 1] = ASSIGN(f"#{self.i + 3}", f"@{ct}")
         # Jump to function
         self.pb[self.i + 2] = JP(f"{func.value}")
         self.i += 3
@@ -368,7 +375,7 @@ class CodeGenerator:
         ct1 = self.get_conversion_temp()
         ct2 = self.get_conversion_temp()
         indexed = self.symbol_table.get_temp(is_indexed=True)
-        self.pb[self.i] = ADD(f"{id.value}", index_ct, f"{ct1}")
+        self.pb[self.i] = ADD(f"#{id.value}", index_ct, f"{ct1}")
         self.pb[self.i + 1] = ADD(f"{self.CF}", f"#{indexed.value}", f"{ct2}")
         self.pb[self.i + 2] = ASSIGN(f"{ct1}", f"@{ct2}")
         self.push(indexed)
@@ -483,7 +490,7 @@ class CodeGenerator:
     def action_2temp(self, _):
         """Assigns current in the semantic stack to a new temp"""
         id = self.ss[TOP]
-        self.pop()
+        self.pop(1)
         t = self.symbol_table.get_temp()
         ct, adds = self.symbol2ct(self.i, t)
         self.i += adds
