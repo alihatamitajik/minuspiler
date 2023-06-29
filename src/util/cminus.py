@@ -356,13 +356,13 @@ GRAMMAR = json.loads(
         "follow":["*","+","-",";",")","<","==","]",","],
         "rules":[
             {"rule":["(","Args",")"],"prediction":["("]},
-            {"rule":["Var-prime"],"prediction":["[","*","+","-",";",")","<","==","]",","]}]},
+            {"rule":["Var-prime", "#2temp"],"prediction":["[","*","+","-",";",")","<","==","]",","]}]},
     "Var-prime":{
         "first":["[",null],
         "follow":["*","+","-",";",")","<","==","]",","],
         "rules":[
             {"rule":["[","Expression","]", "#index"],"prediction":["["]},
-            {"rule":[null, "#tempid"],"prediction":["*","+","-",";",")","<","==","]",","]}]},
+            {"rule":[null],"prediction":["*","+","-",";",")","<","==","]",","]}]},
     "Factor-prime":{
         "first":["(",null],
         "follow":["*","+","-","<","==",";",")","]",","],

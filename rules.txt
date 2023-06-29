@@ -35,8 +35,8 @@ Term-prime -> Factor-prime G
 Term-zegond -> Factor-zegond G
 G -> #pop * Factor #calc G | EPSILON
 Factor -> ( Expression ) | #pid ID Var-call-prime | #constant NUM
-Var-call-prime -> ( Args ) | Var-prime
-Var-prime -> [ Expression ] #index | EPSILON #tempid
+Var-call-prime -> ( Args ) | Var-prime #2temp
+Var-prime -> [ Expression ] #index | EPSILON
 Factor-prime -> #pcount ( Args ) #call | EPSILON
 Factor-zegond -> ( Expression ) | #constant NUM
 Args -> Arg-list | EPSILON

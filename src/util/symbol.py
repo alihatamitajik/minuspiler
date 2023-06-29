@@ -191,8 +191,9 @@ class FunctionEntry(SymbolEntry):
                 scope = scope["last_scope"]
         raise KeyError(f"ID({id}) not declared.")
 
-    def get_temp(self):
-        return SemanticSymbol("@!#$", SymbolType.INT, self.ar.allocate())
+    def get_temp(self, is_indexed):
+        type = SymbolType.INDEXED if is_indexed else SymbolType.INT
+        return SemanticSymbol("@!#$", type, self.ar.allocate())
 
     def is_func(self):
         return True
@@ -292,9 +293,9 @@ class SymbolTable:
         else:
             return entry.ar
 
-    def get_temp(self):
+    def get_temp(self, is_indexed=False):
         assert self.current_func != None
-        return self.current_func.get_temp()
+        return self.current_func.get_temp(is_indexed)
 
     def get_global_temp(self):
         return SemanticSymbol(None, SymbolType.INT, self._allocate_global())

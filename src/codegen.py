@@ -230,6 +230,12 @@ class CodeGenerator:
             self.pb[i] = ADD(f"{self.CF}", f"#{s.value}", f"{ct}")
             return f"@{ct}", 1
 
+        if s.type == SymbolType.INDEXED:
+            ct = self.get_conversion_temp()
+            self.pb[i] = ADD(f"{self.CF}", f"#{s.value}", f"{ct}")
+            self.pb[i + 1] = ASSIGN(f"@{ct}", f"{ct}")
+            return f"@{ct}", 2
+
         return None, 0  # Will produce error if it's used
 
     def action_ret_val(self, _):
@@ -282,17 +288,54 @@ class CodeGenerator:
         to handle recursive and multiple function calls (i.e. f(g(), h(a))"""
         self.arg_count.append(0)
 
-    def action_index(self, _):
-        """Index an array in a temp var
+    def index_global_array(self, id: SemanticSymbol, index_ct):
+        ct1 = self.get_conversion_temp()
+        ct2 = self.get_conversion_temp()
+        indexed = self.symbol_table.get_temp(is_indexed=True)
+        self.pb[self.i] = ADD(f"{id.value}", index_ct, f"{ct1}")
+        self.pb[self.i + 1] = ADD(f"{self.CF}", f"#{indexed.value}", f"{ct2}")
+        self.pb[self.i + 2] = ASSIGN(f"{ct1}", f"@{ct2}")
+        self.push(indexed)
+        self.i += 3
 
-        This uses indirect addressing mode to create address of the index in
-        runtime and access it."""
-        t = self.get_temp()
-        self.pb[self.i] = MUL(self.ss[TOP], "#4", str(t))
-        self.pb[self.i + 1] = ADD(str(t), f"#{self.ss[TOP-1]}", str(t))
-        self.i += 2
+    def index_local_array(self, id: SemanticSymbol, index_ct):
+        ct1 = self.get_conversion_temp()
+        ct2 = self.get_conversion_temp()
+        indexed = self.symbol_table.get_temp(is_indexed=True)
+        self.pb[self.i] = ADD(f"{self.CF}", f"#{id.value}", f"{ct1}")
+        self.pb[self.i + 1] = ADD(f"@{ct1}", index_ct, f"{ct1}")
+        self.pb[self.i + 2] = ADD(f"{self.CF}", f"#{indexed.value}", f"{ct2}")
+        self.pb[self.i + 3] = ASSIGN(f"{ct1}", f"@{ct2}")
+        self.push(indexed)
+        self.i += 4
+
+    def index_local_pointer(self, id: SemanticSymbol, index_ct):
+        ct1 = self.get_conversion_temp()
+        ct2 = self.get_conversion_temp()
+        indexed = self.symbol_table.get_temp(is_indexed=True)
+        self.pb[self.i] = ADD(f"{self.CF}", f"#{id.value}", f"{ct1}")
+        self.pb[self.i + 1] = ADD(f"@{ct1}", index_ct, f"{ct1}")
+        self.pb[self.i + 2] = ADD(f"{self.CF}", f"#{indexed.value}", f"{ct2}")
+        self.pb[self.i + 3] = ASSIGN(f"@{ct1}", f"@{ct2}")
+        self.push(indexed)
+        self.i += 4
+
+    def action_index(self, _):
+        """Create an indexed temp variable and pushes it into stack"""
+        index = self.ss[TOP]  # is a local variable as it's an expression
+        index_ct, add = self.symbol2ct(self.i, index)
+        self.i += add
+        self.pb[self.i] = MUL(index_ct, "#4", index_ct)
+        id = self.ss[TOP - 1]  # May be global/local array or a local pointer
+        if id.type == SymbolType.ARRAY_INT and id.is_global:
+            self.index_global_array(id, index_ct)
+        elif id.type == SymbolType.ARRAY_INT:
+            self.index_local_array(id, index_ct)
+        elif id.type == SymbolType.POINTER_INT:
+            self.index_local_pointer(id, index_ct)
+        else:
+            pass  # semantic error (we cannot index other types)
         self.pop(2)
-        self.push(f"@{t}")
 
     def action_save(self, _):
         """Saves a space in PB and pushes i into SS"""
@@ -357,21 +400,21 @@ class CodeGenerator:
         ct, adds = self.symbol2ct(self.i, t)
         self.i += adds
         self.pb[self.i] = ASSIGN("#" + num, ct)
+        self.i += 1
         self.push(t)
 
-    def action_tempid(self, _):
-        """Assigns PID that is in the semantic stack to a new temp"""
+    def action_2temp(self, _):
+        """Assigns current in the semantic stack to a new temp"""
         id = self.ss[TOP]
-        if id.is_global:
-            self.pop()
-            t = self.symbol_table.get_temp()
-            ct, adds = self.symbol2ct(self.i, t)
-            self.i += adds
-            # This does not add anything but I used it for more coherence
-            ct2, adds = self.symbol2ct(self.i, id)
-            self.i += adds
-            self.pb[self.i] = ASSIGN(ct2, ct)
-            self.push(t)
+        self.pop()
+        t = self.symbol_table.get_temp()
+        ct, adds = self.symbol2ct(self.i, t)
+        self.i += adds
+        ct2, adds = self.symbol2ct(self.i, id)
+        self.i += adds
+        self.pb[self.i] = ASSIGN(ct2, ct)
+        self.i += 1
+        self.push(t)
 
     def action_pbp(self, _):
         """Push breakpoint
