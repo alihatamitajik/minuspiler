@@ -144,7 +144,7 @@ GRAMMAR = json.loads(
         "first":[null,"int","void"],
         "follow":["DOLOR"],
         "rules":[
-            {"rule":["Declaration-list"],"prediction":["int","void","DOLOR"]}]},
+            {"rule":["#init", "Declaration-list", "#main"],"prediction":["int","void","DOLOR"]}]},
     "Declaration-list":{
         "first":[null,"int","void"],
         "follow":["DOLOR","{","break",";","if","repeat","return","ID","(","NUM","}"],

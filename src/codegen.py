@@ -3,12 +3,13 @@ from util import *
 TOP = -1
 
 VOID_RETURN = SemanticSymbol("VOID RETURN", SymbolType.VOID, 4)
+START_STACK = 500
 
 
 class CodeGenerator:
     def __init__(self) -> None:
         self.symbol_table = SymbolTable()
-        self.pb = [None] * 100
+        self.pb = [None] * 200
         self.i = 0
         self.ss = deque()
         self.arg_count = deque()
@@ -324,8 +325,10 @@ class CodeGenerator:
             return
         self.push_arguments(arg_types)
         ct = self.get_conversion_temp()
+        # Push return address
         self.pb[self.i] = ADD(f"{self.SP}", f"#{4}", f"{ct}")
         self.pb[self.i + 1] = ASSIGN(f"{self.i + 3}", f"@{ct}")
+        # Jump to function
         self.pb[self.i + 2] = JP(f"{func.value}")
         self.i += 3
         # Assign  return value
@@ -506,3 +509,14 @@ class CodeGenerator:
         """break expression action"""
         self.break_stack[TOP].append(self.i)  # add label
         self.i += 1  # save space for back-patching
+
+    def action_init(self, _):
+        self.pb[0] = ASSIGN(f"#{START_STACK}", f"{self.SP}")
+        self.pb[1] = ASSIGN(f"#{START_STACK}", f"{self.CF}")
+        self.i = 4  # save two space for main action
+
+    def action_main(self, _):
+        # Assign return address for main
+        self.pb[2] = ASSIGN(f"#{self.i}", "504")
+        main = self.symbol_table.get_by_id("main")
+        self.pb[3] = JP(f"#{main.value}")

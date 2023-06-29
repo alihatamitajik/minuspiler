@@ -1,4 +1,4 @@
-Program -> Declaration-list
+Program -> #init Declaration-list #main
 Declaration-list -> Declaration Declaration-list | EPSILON
 Declaration -> Declaration-initial Declaration-prime
 Declaration-initial -> #ptype Type-specifier #pname ID
