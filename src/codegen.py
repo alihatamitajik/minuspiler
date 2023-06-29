@@ -12,8 +12,9 @@ class CodeGenerator:
         self.arg_count = deque()
         self.break_stack = deque()
         self.semantic_errors = []
-        self.RT_TOP = 200
-        self.RT_TOP_SP = 204
+        self.CF = 200
+        self.SP = 204
+        self.temp = 208
         # save 5 temp for each address in instructions (so next address is 224)
         # This value is used in symbol table init
 
@@ -41,19 +42,14 @@ class CodeGenerator:
         """Pushes x into the stack"""
         self.ss.append(x)
 
-    def runtime_push(self, x):
-        """Generates code for pushing x into the stack
-
-        This will assign x to the top of stack
-        """
-        pass
-
-    def runtime_pop(self, size):
-        """generate code to pop `size` element from runtime stack"""
-        pass
-
     def code_gen(self, action, lookahead):
+        self.temp = 208  # reset conversion temp
         getattr(self, "action_" + action[1:])(lookahead)
+
+    def get_conversion_temp(self):
+        addr = self.temp
+        self.temp += 4
+        return addr
 
     def get_data(self, size=1):
         """returns address of data allocated in data block"""
@@ -97,16 +93,44 @@ class CodeGenerator:
         """Adds function to the symbol table
 
         This also saves a space to offset the TOP after function ends
+
+        NOTE: In time of calling a function, when we jumped into the callee
+        (i.e. the codes are written in this section as first instruction of the
+        function) The Runtime Stack looks like this:
+
+        +---------------------------+ <- CF
+        |       Caller Frame        |
+        |                           |
+        |                           |
+        +---------------------------+ <- SP
+        |       Return Value        |
+        |       Return Address      |
+        +---------------------------+
+
+        And it's the task of callee to save TOP/TOP_SP and allocate space for
+        its variables inside the stack.
         """
         symbol_type = SymbolType[self.ss[TOP-1].upper()]
         self.symbol_table.install_func(self.ss[TOP], symbol_type, self.i)
         self.pop(2)
-        # TODO: save a place to push rest of AR into stack (only should
-        # add a number to TOP)
+        ct = self.get_conversion_temp()
+        self.pb[self.i] = ADD("#8", f"{self.SP}", f"{ct}")
+        self.pb[self.i + 1] = ASSIGN(f"{self.SP}", f"@{ct}")
+        self.pb[self.i + 2] = ADD("#4", f"{ct}", f"{ct}")
+        self.pb[self.i + 3] = ASSIGN(f"{self.CF}", f"@{ct}")
+        self.pb[self.i + 4] = ASSIGN(f"{self.SP}", f"{self.CF}")
+        self.push(self.i + 5)  # Save an space for Adding current AR to SP
+        self.i += 6
 
     def action_func_end(self, _):
         """Tells symbol table that current function is done"""
         self.symbol_table.end_func()
+        # TODO: We should fill the start of function with size of the AR for SP
+        # TODO: Also Callee Code for returning
+        # This Code Includes:
+        #   1. POP AR
+        #   2. Restore CF and SP
+        #   3. Jump to Return Address
 
     def action_arr(self, _):
         """Registers array variable
@@ -174,6 +198,7 @@ class CodeGenerator:
         NOTE: As the arguments are pushed inside the SS with Expression 
         non-terminal we don't need to push them, but some action may be needed 
         for semantic analysis in Args and arg related rules."""
+        # TODO: Whole Function needs fundamental changes
         num_arg = self.arg_count.pop()
         symbol = self.symbol_table.get_symbol_by_addr(self.ss[TOP - num_arg])
         if symbol.args == None:
@@ -277,7 +302,7 @@ class CodeGenerator:
 
         pushes a temp variable that should be in break_stack so break use it
         as a jump point."""
-        t = self.get_temp()  # global temp should be used (not recursive and is a simple address)
+        t = self.get_temp()  # TODO: global temp should be used (not recursive and is a simple address)
         self.break_stack.append(t)
 
     def action_until(self, _):

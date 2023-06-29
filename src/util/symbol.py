@@ -60,10 +60,10 @@ class ActivationRecord:
 
     If stack grows from top to bottom:
 
-    * Return Value (RV)     0
-    * Return Address (RA)   4
-    * Previous TOP (PT)     8    ] This two will be defined inside code gen and
-    * Previous TOP SP (PSP) 12   ] is a reference of those
+    * Return Value (RV)       0
+    * Return Address (RA)     4 
+    * Previous TOP SP (PSP)   8  ] This two will be defined inside code gen and
+    * Previous Current Frame (PCF) 12 ] is a reference of those
     * Arg
     * Arg[] -> address of first element should be in this cell of stack
     * ...
@@ -104,11 +104,11 @@ class ActivationRecord:
         return 4
 
     @property
-    def pt(self):
+    def psp(self):
         return 8
 
     @property
-    def psp(self):
+    def pcf(self):
         return 12
 
     @property
