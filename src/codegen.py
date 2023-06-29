@@ -52,10 +52,6 @@ class CodeGenerator:
         self.temp += 4
         return addr
 
-    def get_data(self, size=1):
-        """returns address of data allocated in data block"""
-        raise NotImplementedError("Should be handled inside symbol table")
-
     def get_temp(self):
         raise NotImplementedError("Should be connected to symbol table")
 
@@ -314,17 +310,14 @@ class CodeGenerator:
 
         pushes a temp variable that should be in break_stack so break use it
         as a jump point."""
-        t = self.get_temp()  # TODO: global temp should be used (not recursive and is a simple address)
-        self.break_stack.append(t)
+        self.break_stack.append([])
 
     def action_until(self, _):
-        """fill the saved space with address of break point and pop breakpoint
-        from stack."""
-        self.pb[self.ss[TOP]] = ASSIGN(
-            f"#{self.i}", str(self.break_stack.pop()))
-        self.pop(1)
+        """BackPatch all breakpoints"""
+        for bp in self.break_stack.pop():
+            self.pb[bp] = JP(f'{self.i}')
 
     def action_break(self, _):
         """break expression action"""
-        self.pb[self.i] = JP(f"@{self.break_stack[TOP]}")
-        self.i += 1
+        self.break_stack[TOP].append(self.i)  # add label
+        self.i += 1  # save space for back-patching

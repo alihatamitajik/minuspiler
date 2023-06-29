@@ -243,7 +243,7 @@ GRAMMAR = json.loads(
         "first":["repeat"],
         "follow":["{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
         "rules":[
-            {"rule":["repeat", "#save","#pbp","#label","Statement","until","(","Expression",")", "#jpf", "#until"],"prediction":["repeat"]}]},
+            {"rule":["repeat","#pbp","#label","Statement","until","(","Expression",")", "#jpf", "#until"],"prediction":["repeat"]}]},
     "Return-stmt":{
         "first":["return"],
         "follow":["{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
