@@ -2,6 +2,8 @@ from collections import deque
 from util import *
 TOP = -1
 
+VOID_RETURN = SemanticSymbol("VOID RETURN", SymbolType.VOID, 4)
+
 
 class CodeGenerator:
     def __init__(self) -> None:
@@ -124,7 +126,7 @@ class CodeGenerator:
         """Tells symbol table that current function is done"""
         ar = self.symbol_table.get_current_ar()
         # Back Patch Caller start routine
-        self.pb[self.ss[TOP]] = ADD(f"#{ar.size}", f"{self.SP}", f"{self.SP}")
+        self.pb[self.ss[TOP]] = ADD(f"#{len(ar)}", f"{self.SP}", f"{self.SP}")
         # Back Patch Return Points
         for rp in self.current_function_return_points:
             self.pb[rp] = JP(f"{self.i}")
@@ -251,31 +253,102 @@ class CodeGenerator:
         self.current_function_return_points.append(self.i)
         self.i += 1
 
+    def push_int_arg(self, arg, ct_rt):
+        ct_arg, add = self.symbol2ct(arg, self.i)
+        self.i += add
+        self.pb[self.i] = ASSIGN(ct_arg, f"@{ct_rt}")
+        self.i += 1
+
+    def push_global_array_arg(self, arg, ct_rt):
+        self.pb[self.i] = ASSIGN(f"#{arg.value}", f"@{ct_rt}")
+        self.i += 1
+
+    def push_local_array_arg(self, arg: SemanticSymbol, ct_rt):
+        ct_address = self.get_conversion_temp()
+        self.pb[self.i] = ADD(f"{self.CF}", f"#{arg.value}", f"{ct_address}")
+        self.pb[self.i + 1] = ASSIGN(f"{ct_address}", ct_rt)
+        self.i += 2
+
+    def push_local_pointer_arg(self, arg, ct_rt):
+        ct_address = self.get_conversion_temp()
+        self.pb[self.i] = ADD(f"{self.CF}", f"#{arg.value}", f"{ct_address}")
+        self.pb[self.i + 1] = ASSIGN(f"@{ct_address}", ct_rt)
+        self.i += 2
+
+    def push_pointer_arg(self, arg, ct_rt):
+        if arg.type == SymbolType.ARRAY_INT and arg.is_global:
+            self.push_global_array_arg(arg, ct_rt)
+        elif arg.type == SymbolType.ARRAY_INT:
+            self.push_local_array_arg(arg, ct_rt)
+        elif arg.type == SymbolType.POINTER_INT:
+            self.push_local_pointer_arg(arg, ct_rt)
+        else:
+            pass  # semantic error
+
+    def push_arguments(self, arg_types):
+        """This will pop args from ss and assign it to stack respectively
+
+        NOTE: This should push to rt stack without changing sp itself.
+        """
+        num_args = len(arg_types)
+        args = self.ss[TOP - num_args:]
+        for i, arg, type in enumerate(zip(args, arg_types)):
+            ct_rt = self.get_conversion_temp()
+            self.pb[self.i] = ADD(f"{self.SP}", f"#{16 + i * 4}", f"{ct_rt}")
+            self.i += 1
+            if type == SymbolType.INT:
+                self.push_int_arg(arg, ct_rt)
+            elif type == SymbolType.POINTER_INT:
+                self.push_pointer_arg(arg, ct_rt)
+            else:
+                pass  # semantic error (we cannot have any other types)
+        self.pop(num_args)
+
     def action_call(self, _):
         """Call the function inside SS with number of its arguments
 
-        NOTE: As the arguments are pushed inside the SS with Expression 
-        non-terminal we don't need to push them, but some action may be needed 
-        for semantic analysis in Args and arg related rules."""
-        # TODO: Whole Function needs fundamental changes
+        Tasks:
+            - Push Args to the rt stack
+                - Ints are assigned directly
+                - Pointers needs special care
+            - Push Return Address (RA) to rt stack
+            - Copy return value to a temp
+
+        NOTE: Semantic checks does not apply in this section
+        """
         num_arg = self.arg_count.pop()
-        symbol = self.symbol_table.get_symbol_by_addr(self.ss[TOP - num_arg])
-        if symbol.args == None:
-            raise ValueError(f"ID({symbol.lexeme}) is not a function")
-        if len(symbol.args) != num_arg:
-            raise TypeError(
-                f"Bad number of arguments ({num_arg}) for {symbol.lexeme}({', '.join(symbol.args)})")
-        if symbol.lexeme == 'output':
-            self.code_output()
+        func = self.ss[TOP - num_arg]
+        arg_types = func.args
+        if func.name == 'output':
+            self.generate_output()  # this also should push return value to ss
+            return
+        self.push_arguments(arg_types)
+        ct = self.get_conversion_temp()
+        self.pb[self.i] = ADD(f"{self.SP}", f"#{4}", f"{ct}")
+        self.pb[self.i + 1] = ASSIGN(f"{self.i + 3}", f"@{ct}")
+        self.pb[self.i + 2] = JP(f"{func.value}")
+        self.i += 3
+        # Assign  return value
+        rv = None
+        if func.type == SymbolType.INT:
+            rv = self.symbol_table.get_temp()
+            ct_rv, add = self.symbol2ct(self.i, t)
+            self.i += add
+            self.pb[self.i] = ASSIGN(f"@{self.SP}", ct_rv)
+            self.i += 1
         else:
-            pass  # should be replaced with real function call in next Phase
-        self.pop(num_arg + 1)  # pop arguments id of func
-        # push return value (?) TODO: this is temp for return value of output
-        self.push(None)
+            # void return type
+            rv = VOID_RETURN
+        self.pop(1)  # pop func from ss
+        self.push(rv)
 
     def code_output(self):
-        self.pb[self.i] = PRINT(self.ss[TOP])
+        ct, add = self.symbol2ct(self.i, self.ss[TOP])
+        self.i += add
+        self.pb[self.i] = PRINT(ct)
         self.i += 1
+        self.pop(2)
+        self.push(VOID_RETURN)
 
     def action_incarg(self, _):
         """Increment number of arguments calling"""
