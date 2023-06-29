@@ -113,6 +113,10 @@ class ActivationRecord:
 
     @property
     def size(self):
+        """Return the size of AR (WITHOUT RV, RA, PSP and PCF)"""
+        return self.top_addr - 16
+
+    def __len__(self):
         return self.top_addr
 
 
@@ -293,3 +297,7 @@ class SymbolTable:
 
     def get_global_temp(self):
         return SemanticSymbol(None, SymbolType.INT, self._allocate_global())
+
+    def get_current_ar(self):
+        assert self.current_func != None
+        return self.current_func.ar

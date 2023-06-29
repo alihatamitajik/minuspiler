@@ -15,6 +15,7 @@ class CodeGenerator:
         self.CF = 200
         self.SP = 204
         self.temp = 208
+        self.current_function_return_points = []
         # save 5 temp for each address in instructions (so next address is 224)
         # This value is used in symbol table init
 
@@ -110,13 +111,14 @@ class CodeGenerator:
         And it's the task of callee to save TOP/TOP_SP and allocate space for
         its variables inside the stack.
         """
+        self.current_function_return_points = []
         symbol_type = SymbolType[self.ss[TOP-1].upper()]
         self.symbol_table.install_func(self.ss[TOP], symbol_type, self.i)
         self.pop(2)
         ct = self.get_conversion_temp()
         self.pb[self.i] = ADD("#8", f"{self.SP}", f"{ct}")
         self.pb[self.i + 1] = ASSIGN(f"{self.SP}", f"@{ct}")
-        self.pb[self.i + 2] = ADD("#4", f"{ct}", f"{ct}")
+        self.pb[self.i + 2] = ADD("#12", f"{self.SP}", f"{ct}")
         self.pb[self.i + 3] = ASSIGN(f"{self.CF}", f"@{ct}")
         self.pb[self.i + 4] = ASSIGN(f"{self.SP}", f"{self.CF}")
         self.push(self.i + 5)  # Save an space for Adding current AR to SP
@@ -124,13 +126,23 @@ class CodeGenerator:
 
     def action_func_end(self, _):
         """Tells symbol table that current function is done"""
+        ar = self.symbol_table.get_current_ar()
+        # Back Patch Caller start routine
+        self.pb[self.pop()] = ADD(f"#{ar.size}", f"{self.SP}", f"{self.SP}")
+        # Back Patch Return Points
+        for rp in self.current_function_return_points:
+            self.pb[rp] = JP(f"{self.i}")
+        # POP AR -> SP is RESTORED
+        self.pb[self.i] = SUB(f'{self.SP}', f'#{len(ar)}', f'{self.SP}')
+        # RESTORE CF
+        ct = self.get_conversion_temp()
+        self.pb[self.i + 1] = ADD(f"#{ar.pcf}", f"{self.SP}", f"{ct}")
+        self.pb[self.i + 2] = ASSIGN(f'@{ct}', f'{self.CF}')
+        # Jump to Return Address
+        self.pb[self.i + 3] = ADD(f"#{ar.ra}", f"{self.SP}", f"{ct}")
+        self.pb[self.i + 4] = JP(f'@{ct}')
+        self.i += 5
         self.symbol_table.end_func()
-        # TODO: We should fill the start of function with size of the AR for SP
-        # TODO: Also Callee Code for returning
-        # This Code Includes:
-        #   1. POP AR
-        #   2. Restore CF and SP
-        #   3. Jump to Return Address
 
     def action_arr(self, _):
         """Registers array variable
