@@ -248,13 +248,13 @@ GRAMMAR = json.loads(
         "first":["return"],
         "follow":["{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
         "rules":[
-            {"rule":["return","Return-stmt-prime"],"prediction":["return"]}]},
+            {"rule":["return","Return-stmt-prime", "#return"],"prediction":["return"]}]},
     "Return-stmt-prime":{
         "first":[";","ID","(","NUM"],
         "follow":["{","break",";","if","repeat","return","ID","(","NUM","}","else","until"],
         "rules":[
             {"rule":[";"],"prediction":[";"]},
-            {"rule":["Expression",";"],"prediction":["ID","(","NUM"]}]},
+            {"rule":["Expression", "#ret_val", ";"],"prediction":["ID","(","NUM"]}]},
     "Expression":{
         "first":["ID","(","NUM"],
         "follow":[";",")","]",","],

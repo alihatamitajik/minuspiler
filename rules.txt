@@ -16,8 +16,8 @@ Statement -> Expression-stmt | #scope_up Compound-stmt #scope_down | Selection-s
 Expression-stmt -> Expression #pexpr ; | break ; | ;
 Selection-stmt -> if ( Expression ) #save Statement #jpf_save else Statement #jp
 Iteration-stmt -> repeat #pbp #label Statement until ( Expression ) #jpf #until
-Return-stmt -> return Return-stmt-prime
-Return-stmt-prime -> ; | Expression ;
+Return-stmt -> return Return-stmt-prime #return
+Return-stmt-prime -> ; | Expression #ret_val;
 Expression -> Simple-expression-zegond | #pid ID B
 B -> = Expression #assign | [ Expression ] #index H | Simple-expression-prime
 H -> = Expression #assign | G D C

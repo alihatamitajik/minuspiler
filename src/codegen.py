@@ -200,6 +200,40 @@ class CodeGenerator:
         """Push operator into SS"""
         self.push(lookahead.lexeme)
 
+    def symbol2ct(self, i, s: SemanticSymbol):
+        """Convert Semantic Symbol to lines of code starting from i
+
+        Returns:
+            str: something that can be used as operand
+            int: lines of code used to generate operand
+        """
+        if s.is_constant:
+            return f"#{s.value}", 0
+
+        if s.is_global and s.type == SymbolType.INT:
+            return f"{s.value}", 0
+
+        if not s.is_global and s.type == SymbolType.INT:
+            # we have indirect int / temp
+            ct = self.get_conversion_temp()
+            self.pb[i] = ADD(f"{self.CF}", f"#{s.value}", f"{ct}")
+            return f"@{ct}", 1
+
+        return None, 0  # Will produce error if it's used
+
+    def action_ret_val(self, _):
+        """Assigns the temp variable pushed into semantic stack to the RV field
+        of AR. Return statements will be generated later"""
+        ct, addition = self.symbol2ct(self.i, self.ss.pop())
+        self.i += addition
+        self.pb[self.i] = ASSIGN(ct, f"@{self.CF}") 
+        self.i += 1
+
+    def action_return(self, _):
+        """Pushes a saved return point"""
+        self.current_function_return_points.append(self.i)
+        self.i += 1
+
     def action_call(self, _):
         """Call the function inside SS with number of its arguments
 
