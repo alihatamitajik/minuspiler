@@ -34,11 +34,11 @@ Term -> Factor G
 Term-prime -> Factor-prime G
 Term-zegond -> Factor-zegond G
 G -> #pop * Factor #calc G | EPSILON
-Factor -> ( Expression ) | #pid ID Var-call-prime | #pnum NUM
+Factor -> ( Expression ) | #pid ID Var-call-prime | #constant NUM
 Var-call-prime -> ( Args ) | Var-prime
 Var-prime -> [ Expression ] #index | EPSILON
 Factor-prime -> #pcount ( Args ) #call | EPSILON
-Factor-zegond -> ( Expression ) | #pnum NUM
+Factor-zegond -> ( Expression ) | #constant NUM
 Args -> Arg-list | EPSILON
 Arg-list -> Expression #incarg Arg-list-prime
 Arg-list-prime -> , Expression #incarg Arg-list-prime | EPSILON

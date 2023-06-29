@@ -349,6 +349,14 @@ class CodeGenerator:
         self.i += 1
         self.pop(2)
 
+    def action_constant(self, lookahead):
+        num = lookahead.lexeme
+        t = self.symbol_table.get_temp()
+        ct, adds = self.symbol2ct(self.i, t)
+        self.i += adds
+        self.pb[self.i] = ASSIGN("#" + num, ct)
+        self.push(t)
+
     def action_pbp(self, _):
         """Push breakpoint
 
