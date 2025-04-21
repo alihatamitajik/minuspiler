@@ -25,7 +25,7 @@ class TestCases(unittest.TestCase):
                 scanner = Scanner(file=str(test.joinpath('input.txt')))
                 scanner.iterate_ignore()
                 # create outputs
-                sym, tok, err = [StringIO() for i in range(3)]
+                sym, tok, err = [StringIO() for _ in range(3)]
                 scanner.dump_log(file_tokens=tok, file_errors=err,
                                  file_symbols=sym)
                 outputs = [(tok, 'tokens.txt'), (sym, 'symbol_table.txt'),
@@ -45,7 +45,7 @@ class TestCases(unittest.TestCase):
             with self.subTest(testcase=i):
                 # create scanner
                 scanner = Scanner(file=str(test.joinpath('input.txt')))
-                tree, err = [StringIO() for i in range(2)]
+                tree, err = [StringIO() for _ in range(2)]
                 parser = Parser(scanner, err, tree)
                 parser.parse()
                 outputs = [(tree, 'parse_tree.txt'),
